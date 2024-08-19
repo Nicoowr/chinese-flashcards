@@ -17,11 +17,19 @@ const serverlessConfig: Serverless = {
       NOTION_API_KEY: "${env:NOTION_API_KEY}",
       NOTION_DATABASE_ID: "${env:NOTION_DATABASE_ID}",
     },
-    timeout: 30,
+    timeout: 20,
   },
   functions: {
     fetchChineseCharacter: {
-      handler: "api/fetchChineseCharacter.handler",
+      handler: "src/api/fetchChineseCharacter.handler",
+      events: [
+        {
+          httpApi: {
+            path: "/fetch-chinese-character",
+            method: "get",
+          },
+        },
+      ],
     },
   },
 };

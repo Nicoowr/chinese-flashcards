@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",
+    "dayjs": "^1.11.12",
     "dotenv": "^16.4.5"
   }
 }

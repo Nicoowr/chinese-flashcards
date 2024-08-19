@@ -1,5 +1,17 @@
 import { fetchChineseCharacters } from "../src/dependencies/notion";
-
+/*
+{
+    Example: { id: '%3EWI%7C', type: 'rich_text', rich_text: [Array] },
+    'Added At': { id: 'FwNo', type: 'date', date: [Object] },
+    Translation: { id: 'XopM', type: 'rich_text', rich_text: [Array] },
+    Type: { id: 'Zddm', type: 'multi_select', multi_select: [Array] },
+    Importance: { id: '%5E%3EDj', type: 'select', select: [Object] },
+    'Start/Stop': { id: 'hsHU', type: 'rich_text', rich_text: [] },
+    '❤️': { id: 'l%3AqH', type: 'status', status: [Object] },
+    Staged: { id: '%7BQ%60D', type: 'checkbox', checkbox: false },
+    Character: { id: 'title', type: 'title', title: [Array] }
+  }
+ */
 /* Example:
 {
     "Example": {

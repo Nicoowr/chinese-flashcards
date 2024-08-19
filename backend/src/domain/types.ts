@@ -1,15 +1,13 @@
 export type ChineseCharacter = {
   character: string;
-  translation: string;
-  example: string;
-  metadata: {
-    addedAt: Date;
-    type: "verb" | "noun" | "adjective" | "adverb" | "link";
-    importance: "high" | "medium" | "low";
-    lastSeenAt: Date;
-    numberOfCorrectAnswers: number;
-    levelOfConfidence: "✅" | "❌";
-  };
+  translation: string | null;
+  example: string | null;
+  addedAt: Date | null;
+  type: "verb" | "noun" | "adjective" | "adverb" | "link" | null;
+  importance: "high" | "medium" | "low" | null;
+  lastSeenAt: Date | null;
+  numberOfCorrectAnswers: number | null;
+  levelOfConfidence: "high" | "low" | null;
 };
 
 export type ChineseCharacterFilter =
