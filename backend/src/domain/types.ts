@@ -1,4 +1,5 @@
 export type ChineseCharacter = {
+  id: string;
   character: string;
   translation: string | null;
   example: string | null;

@@ -22,7 +22,7 @@ To read more about using these font, please visit the Next.js documentation:
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 import { ChineseCharacter } from "./types";
 
 const fetchChineseCharacter = async () => {
@@ -33,12 +33,31 @@ const fetchChineseCharacter = async () => {
   return response.json();
 };
 
+const updateCharacterUnknown = async (id: string) => {
+  const response = await fetch("/api/character-unknown", {
+    method: "POST",
+    body: JSON.stringify({ id }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
+
 export function FlashcardsContainer() {
-  const { data, error, isLoading, refetch } = useQuery<ChineseCharacter>(
+  const { data, refetch } = useQuery<ChineseCharacter>(
     "chineseCharacter",
     fetchChineseCharacter,
     { refetchOnWindowFocus: false }
   );
+
+  const { mutateAsync: handleCharacterUnknown } = useMutation(
+    updateCharacterUnknown
+  );
+
   const [showIdeogram, setShowIdeogram] = useState(false);
 
   const handleCheck = () => {
@@ -48,18 +67,21 @@ export function FlashcardsContainer() {
   const handleReveal = () => {
     setShowIdeogram((prevState) => !prevState);
   };
-  const handleUnknown = () => {
+  const handleUnknown = async () => {
     setShowIdeogram(false);
+    if (data) {
+      await handleCharacterUnknown(data.id);
+    }
     refetch();
   };
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = async (event: KeyboardEvent) => {
       switch (event.key) {
         case "ArrowLeft":
           handleCheck();
           break;
         case "ArrowRight":
-          handleUnknown();
+          await handleUnknown();
           break;
         case "ArrowUp":
           handleReveal();

@@ -42,6 +42,7 @@ export const propertiesMappingFromDomainToNotion: Record<
   keyof ChineseCharacter,
   string
 > = {
+  id: "id",
   character: "Character",
   translation: "Translation",
   example: "Example",
@@ -54,6 +55,7 @@ export const propertiesMappingFromDomainToNotion: Record<
 };
 
 export const mapNotionCharacterToChineseCharacter = ({
+  id,
   properties,
 }: DatabaseObjectResponse): ChineseCharacter => {
   const character = extractNotionTitle(
@@ -85,6 +87,7 @@ export const mapNotionCharacterToChineseCharacter = ({
   >(properties[propertiesMappingFromDomainToNotion.levelOfConfidence]);
 
   return {
+    id,
     character,
     translation,
     example,

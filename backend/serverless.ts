@@ -31,6 +31,17 @@ const serverlessConfig: Serverless = {
         },
       ],
     },
+    characterUnknown: {
+      handler: "src/api/characterUnknown.handler",
+      events: [
+        {
+          httpApi: {
+            path: "/character-unknown",
+            method: "post",
+          },
+        },
+      ],
+    },
   },
 };
 

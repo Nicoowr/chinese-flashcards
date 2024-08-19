@@ -4,7 +4,6 @@ const LAMBDA_ENDPOINT = `https://n8tqclsixf.execute-api.eu-west-3.amazonaws.com/
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    console.log("LAMBDA_ENDPOINT", LAMBDA_ENDPOINT);
     const response = await fetch(LAMBDA_ENDPOINT);
     const data = await response.json();
     res.status(200).json(data.character);
