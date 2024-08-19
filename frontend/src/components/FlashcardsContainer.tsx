@@ -33,8 +33,22 @@ const fetchChineseCharacter = async () => {
   return response.json();
 };
 
-const updateCharacterUnknown = async (id: string) => {
+const setCharacterUnknown = async (id: string) => {
   const response = await fetch("/api/character-unknown", {
+    method: "POST",
+    body: JSON.stringify({ id }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
+
+const setCharacterKnown = async (id: string) => {
+  const response = await fetch("/api/character-known", {
     method: "POST",
     body: JSON.stringify({ id }),
     headers: {
@@ -54,14 +68,18 @@ export function FlashcardsContainer() {
     { refetchOnWindowFocus: false }
   );
 
-  const { mutateAsync: handleCharacterUnknown } = useMutation(
-    updateCharacterUnknown
-  );
+  const { mutateAsync: handleCharacterUnknown } =
+    useMutation(setCharacterUnknown);
+
+  const { mutateAsync: handleCharacterKnown } = useMutation(setCharacterKnown);
 
   const [showIdeogram, setShowIdeogram] = useState(false);
 
-  const handleCheck = () => {
+  const handleCheck = async () => {
     setShowIdeogram(false);
+    if (data) {
+      await handleCharacterKnown(data.id);
+    }
     refetch();
   };
   const handleReveal = () => {
@@ -78,7 +96,7 @@ export function FlashcardsContainer() {
     const handleKeyDown = async (event: KeyboardEvent) => {
       switch (event.key) {
         case "ArrowLeft":
-          handleCheck();
+          await handleCheck();
           break;
         case "ArrowRight":
           await handleUnknown();

@@ -18,10 +18,15 @@ const typesMapping = {
   Link: "link",
 } as const;
 
-const levelsOfConfidenceMapping = {
+const levelsOfConfidenceMappingFromNotionToDomain = {
   "✅": "high",
   "❌": "low",
 } as const;
+
+export const levelOfConfidenceMappingFromDomainToNotion = {
+  high: "✅",
+  low: "❌",
+};
 
 const importanceMappingFromNotionToDomain = {
   High: "high",
@@ -83,7 +88,7 @@ export const mapNotionCharacterToChineseCharacter = ({
     properties[propertiesMappingFromDomainToNotion.numberOfCorrectAnswers]
   );
   const levelOfConfidence = extractStatusValue<
-    keyof typeof levelsOfConfidenceMapping
+    keyof typeof levelsOfConfidenceMappingFromNotionToDomain
   >(properties[propertiesMappingFromDomainToNotion.levelOfConfidence]);
 
   return {
@@ -99,7 +104,7 @@ export const mapNotionCharacterToChineseCharacter = ({
     lastSeenAt,
     numberOfCorrectAnswers,
     levelOfConfidence: levelOfConfidence
-      ? levelsOfConfidenceMapping[levelOfConfidence]
+      ? levelsOfConfidenceMappingFromNotionToDomain[levelOfConfidence]
       : null,
   };
 };

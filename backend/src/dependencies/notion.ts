@@ -2,7 +2,11 @@ import { Client } from "@notionhq/client";
 import { DatabaseObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { config } from "dotenv";
 import { ChineseCharacter } from "../domain/types";
-import { mapNotionCharacterToChineseCharacter } from "../domain/mappers";
+import {
+  levelOfConfidenceMappingFromDomainToNotion,
+  mapNotionCharacterToChineseCharacter,
+  propertiesMappingFromDomainToNotion,
+} from "../domain/mappers";
 import dayjs from "dayjs";
 
 config();
@@ -48,9 +52,7 @@ export const fetchChineseCharacter = async (
   return randomCharacter;
 };
 
-export const updateChineseCharacterLastSeenAt = async (
-  id: string
-): Promise<void> => {
+export const setCharacterToUnknown = async (id: string): Promise<void> => {
   const databaseId = process.env.NOTION_DATABASE_ID;
   if (!databaseId) {
     throw new Error(
@@ -63,10 +65,45 @@ export const updateChineseCharacterLastSeenAt = async (
   await notion.pages.update({
     page_id: id,
     properties: {
-      "Last Seen At": {
+      [propertiesMappingFromDomainToNotion.lastSeenAt]: {
         type: "date",
         date: {
           start: dayjs().format("YYYY-MM-DD"),
+        },
+      },
+      [propertiesMappingFromDomainToNotion.levelOfConfidence]: {
+        type: "status",
+        status: {
+          name: levelOfConfidenceMappingFromDomainToNotion["low"],
+        },
+      },
+    },
+  });
+};
+
+export const setCharacterToKnown = async (id: string): Promise<void> => {
+  const databaseId = process.env.NOTION_DATABASE_ID;
+  if (!databaseId) {
+    throw new Error(
+      "NOTION_DATABASE_ID is not defined in the environment variables"
+    );
+  }
+
+  console.log("Setting character with ID to known", id);
+
+  await notion.pages.update({
+    page_id: id,
+    properties: {
+      [propertiesMappingFromDomainToNotion.lastSeenAt]: {
+        type: "date",
+        date: {
+          start: dayjs().format("YYYY-MM-DD"),
+        },
+      },
+      [propertiesMappingFromDomainToNotion.levelOfConfidence]: {
+        type: "status",
+        status: {
+          name: levelOfConfidenceMappingFromDomainToNotion["high"],
         },
       },
     },

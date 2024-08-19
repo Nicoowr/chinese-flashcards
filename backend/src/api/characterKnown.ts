@@ -1,9 +1,9 @@
-import { setCharacterToUnknown } from "../dependencies/notion";
+import { setCharacterToKnown } from "../dependencies/notion";
 
 export const handler = async (event: { body: string }) => {
   console.log("Event", event);
   const payload = JSON.parse(event.body);
-  await setCharacterToUnknown(payload.id);
+  await setCharacterToKnown(payload.id);
 
   return {
     statusCode: 200,
