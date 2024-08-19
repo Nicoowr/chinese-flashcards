@@ -119,12 +119,12 @@ export function FlashcardsContainer() {
         <div className="flex flex-col items-center">
           <div className="flex flex-col items-center gap-4">
             <h2 className="text-4xl font-bold">{data?.translation}</h2>
-            <div className="flex items-center gap-4">
-              <div>{data?.example}</div>
-            </div>
           </div>
           {showIdeogram && (
-            <div className="text-6xl font-bold mt-6">{data?.character}</div>
+            <>
+              <div className="text-6xl font-bold mt-6">{data?.character}</div>
+              <div className="text-xl mt-6">{data?.example}</div>
+            </>
           )}
         </div>
         <div className="flex justify-center gap-6">
