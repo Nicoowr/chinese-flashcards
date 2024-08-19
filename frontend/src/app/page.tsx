@@ -1,6 +1,6 @@
 "use client";
-import { FlashcardsContainer } from "@/components/FlashcardsContainer";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { FlashcardsContainer } from "../components/FlashcardsContainer";
 const queryClient = new QueryClient();
 
 export default function Home() {

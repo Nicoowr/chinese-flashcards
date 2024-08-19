@@ -8,9 +8,5 @@
     "css": "src/app/globals.css",
     "baseColor": "gray",
     "cssVariables": true
-  },
-  "aliases": {
-    "utils": "@/lib/utils",
-    "components": "@/components"
   }
 }

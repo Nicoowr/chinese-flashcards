@@ -20,10 +20,10 @@ To read more about using these font, please visit the Next.js documentation:
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useQuery, useMutation } from "react-query";
 import { ChineseCharacter } from "./types";
+import { Button } from "./ui/button";
+import { Card } from "./ui/card";
 
 const fetchChineseCharacter = async () => {
   const response = await fetch("/api/fetch-chinese-character");
