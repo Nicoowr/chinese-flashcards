@@ -1,4 +1,4 @@
-import { setCharacterToUnknown } from "../dependencies/notion";
+import { setCharacterToUnknown } from "../domain/setCharacterToUnknown";
 
 export const handler = async (event: { body: string }) => {
   console.log("Event", event);

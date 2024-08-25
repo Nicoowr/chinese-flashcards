@@ -1,4 +1,4 @@
-import { fetchChineseCharacters } from "../src/dependencies/notion";
+import { fetchChineseCharactersFromDatabase } from "../src/dependencies/notion";
 /*
 {
     Example: { id: '%3EWI%7C', type: 'rich_text', rich_text: [Array] },
@@ -151,7 +151,7 @@ import { fetchChineseCharacters } from "../src/dependencies/notion";
   }
  */
 const main = async () => {
-  const characters = await fetchChineseCharacters([]);
+  const characters = await fetchChineseCharactersFromDatabase([], 10);
   console.log(characters);
 };
 main();

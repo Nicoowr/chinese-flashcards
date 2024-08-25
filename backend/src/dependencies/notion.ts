@@ -1,36 +1,40 @@
 import { Client } from "@notionhq/client";
 import { DatabaseObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { config } from "dotenv";
+import { mapNotionCharacterToChineseCharacter } from "../domain/mappers";
 import { ChineseCharacter } from "../domain/types";
-import {
-  levelOfConfidenceMappingFromDomainToNotion,
-  mapNotionCharacterToChineseCharacter,
-  propertiesMappingFromDomainToNotion,
-} from "../domain/mappers";
-import dayjs from "dayjs";
 
 config();
 
-const notion = new Client({ auth: process.env.NOTION_API_KEY });
+export const notionClient = new Client({ auth: process.env.NOTION_API_KEY });
 
-export const fetchChineseCharacter = async (
-  filters: any
+const NOTION_DATABASE_ID = "e9a17e9f569944f2bbde3bfe0929cddc";
+
+export const fetchChineseCharacterById = async (
+  id: string
 ): Promise<ChineseCharacter> => {
-  const databaseId = process.env.NOTION_DATABASE_ID;
-  if (!databaseId) {
-    throw new Error(
-      "NOTION_DATABASE_ID is not defined in the environment variables"
-    );
-  }
+  const response = await notionClient.pages.retrieve({
+    page_id: id,
+  });
 
+  // @ts-ignore: Page type is slightly different from DatabaseObjectResponse type, but it should not matter for this use case
+  const character = mapNotionCharacterToChineseCharacter(response);
+
+  return character;
+};
+
+export const fetchChineseCharactersFromDatabase = async (
+  filters: any,
+  numberOfCharacters: number
+): Promise<ChineseCharacter[]> => {
   console.log(
     "Fetching characters with filters:",
     JSON.stringify(filters, null, 2)
   );
 
-  const response = (await notion.databases.query({
-    database_id: databaseId,
-    page_size: 1,
+  const response = (await notionClient.databases.query({
+    database_id: NOTION_DATABASE_ID,
+    page_size: numberOfCharacters,
     filter: filters,
   })) as { results: DatabaseObjectResponse[] };
 
@@ -44,68 +48,5 @@ export const fetchChineseCharacter = async (
     "Fetched characters": cleanCharacters,
   });
 
-  const randomCharacter =
-    cleanCharacters[Math.floor(Math.random() * cleanCharacters.length)];
-
-  console.log("Random character selected:", randomCharacter);
-
-  return randomCharacter;
-};
-
-export const setCharacterToUnknown = async (id: string): Promise<void> => {
-  const databaseId = process.env.NOTION_DATABASE_ID;
-  if (!databaseId) {
-    throw new Error(
-      "NOTION_DATABASE_ID is not defined in the environment variables"
-    );
-  }
-
-  console.log("Updating character with ID:", id);
-
-  await notion.pages.update({
-    page_id: id,
-    properties: {
-      [propertiesMappingFromDomainToNotion.lastSeenAt]: {
-        type: "date",
-        date: {
-          start: dayjs().format("YYYY-MM-DD"),
-        },
-      },
-      [propertiesMappingFromDomainToNotion.levelOfConfidence]: {
-        type: "status",
-        status: {
-          name: levelOfConfidenceMappingFromDomainToNotion["low"],
-        },
-      },
-    },
-  });
-};
-
-export const setCharacterToKnown = async (id: string): Promise<void> => {
-  const databaseId = process.env.NOTION_DATABASE_ID;
-  if (!databaseId) {
-    throw new Error(
-      "NOTION_DATABASE_ID is not defined in the environment variables"
-    );
-  }
-
-  console.log("Setting character with ID to known", id);
-
-  await notion.pages.update({
-    page_id: id,
-    properties: {
-      [propertiesMappingFromDomainToNotion.lastSeenAt]: {
-        type: "date",
-        date: {
-          start: dayjs().format("YYYY-MM-DD"),
-        },
-      },
-      [propertiesMappingFromDomainToNotion.levelOfConfidence]: {
-        type: "status",
-        status: {
-          name: levelOfConfidenceMappingFromDomainToNotion["high"],
-        },
-      },
-    },
-  });
+  return cleanCharacters;
 };

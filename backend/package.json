@@ -16,7 +16,8 @@
     "@types/serverless": "^3.12.22",
     "serverless": "^4.1.22",
     "tsx": "^4.17.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",

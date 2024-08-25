@@ -1,4 +1,4 @@
-import { setCharacterToKnown } from "../dependencies/notion";
+import { setCharacterToKnown } from "../domain/setCharacterToKnown";
 
 export const handler = async (event: { body: string }) => {
   console.log("Event", event);
