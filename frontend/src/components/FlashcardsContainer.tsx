@@ -19,14 +19,25 @@ To read more about using these font, please visit the Next.js documentation:
 **/
 "use client";
 
-import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "react-query";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "react-query";
+import { SelectCharacterType } from "./SelectCharacterType";
 import { ChineseCharacter } from "./types";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 
-const fetchChineseCharacter = async () => {
-  const response = await fetch("/api/fetch-chinese-character");
+const fetchChineseCharacter = async ({
+  characterType,
+}: {
+  characterType: string | null;
+}) => {
+  const response = await fetch("/api/fetch-chinese-character", {
+    method: "POST",
+    body: JSON.stringify({ characterType }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }
@@ -62,12 +73,6 @@ const setCharacterKnown = async (id: string) => {
 };
 
 export function FlashcardsContainer() {
-  const { data, refetch } = useQuery<ChineseCharacter>(
-    "chineseCharacter",
-    fetchChineseCharacter,
-    { refetchOnWindowFocus: false }
-  );
-
   const { mutateAsync: handleCharacterUnknown } =
     useMutation(setCharacterUnknown);
 
@@ -75,11 +80,22 @@ export function FlashcardsContainer() {
 
   const [showIdeogram, setShowIdeogram] = useState(false);
 
+  const [numberOfCharacterFetched, setNumberOfCharacterFetched] = useState(1);
+
+  const [characterType, setCharacterType] = useState<string | null>(null);
+
+  const { data, refetch } = useQuery<ChineseCharacter>(
+    "chineseCharacter",
+    () => fetchChineseCharacter({ characterType }),
+    { refetchOnWindowFocus: false }
+  );
+
   const handleCheck = async () => {
     setShowIdeogram(false);
     if (data) {
       await handleCharacterKnown(data.id);
     }
+    setNumberOfCharacterFetched((prevState) => prevState + 1);
     refetch();
   };
   const handleReveal = () => {
@@ -90,6 +106,7 @@ export function FlashcardsContainer() {
     if (data) {
       await handleCharacterUnknown(data.id);
     }
+    setNumberOfCharacterFetched((prevState) => prevState + 1);
     refetch();
   };
   useEffect(() => {
@@ -115,36 +132,42 @@ export function FlashcardsContainer() {
   }, [handleCheck, handleReveal, handleUnknown]);
   return (
     <div className="dark flex flex-col items-center justify-center h-screen bg-background text-card-foreground">
-      <Card className="w-full max-w-2xl p-10 space-y-8 bg-card">
-        <div className="flex flex-col items-center">
-          <div className="flex flex-col items-center gap-4">
-            <h2 className="text-4xl font-bold">{data?.translation}</h2>
-          </div>
-          {showIdeogram && (
-            <>
-              <div className="text-6xl font-bold mt-6">{data?.character}</div>
-              <div className="text-xl mt-6">{data?.example}</div>
-            </>
-          )}
-        </div>
-        <div className="flex justify-center gap-6">
-          <Button onClick={handleCheck} className="text-lg px-6 py-3">
-            <CheckIcon className="h-6 w-6" />
-            Check
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleReveal}
-            className="text-lg px-6 py-3"
-          >
-            {showIdeogram ? "Hide" : "Reveal"}
-          </Button>
-          <Button onClick={handleUnknown} className="text-lg px-6 py-3">
-            <XIcon className="h-6 w-6" />
-            Unknown
-          </Button>
-        </div>
+      <Card className="absolute top-4 right-4 bg-card px-4 py-2 rounded-lg text-sm font-medium">
+        {numberOfCharacterFetched}
       </Card>
+      <div className="flex w-full max-w-2xl">
+        <SelectCharacterType handleCharacterTypeChange={setCharacterType} />
+        <Card className="w-full max-w-2xl p-10 space-y-8 bg-card ml-4">
+          <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center gap-4">
+              <h2 className="text-4xl font-bold">{data?.translation}</h2>
+            </div>
+            {showIdeogram && (
+              <>
+                <div className="text-6xl font-bold mt-6">{data?.character}</div>
+                <div className="text-xl mt-6">{data?.example}</div>
+              </>
+            )}
+          </div>
+          <div className="flex justify-center gap-6">
+            <Button onClick={handleCheck} className="text-lg px-6 py-3">
+              <CheckIcon className="h-6 w-6" />
+              Check
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleReveal}
+              className="text-lg px-6 py-3"
+            >
+              {showIdeogram ? "Hide" : "Reveal"}
+            </Button>
+            <Button onClick={handleUnknown} className="text-lg px-6 py-3">
+              <XIcon className="h-6 w-6" />
+              Unknown
+            </Button>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }

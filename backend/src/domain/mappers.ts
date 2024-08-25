@@ -7,16 +7,27 @@ import {
   extractSelectValue,
   extractNumber,
   extractStatusValue,
-} from "./notionTypeguards";
-import { ChineseCharacter } from "./types";
+} from "./notionFieldExtractors";
+import { CharacterType, ChineseCharacter } from "./types";
 
-const typesMapping = {
+const typesMappingFromNotionToDomain = {
   Verb: "verb",
   Noun: "noun",
   Adjective: "adjective",
   Adverb: "adverb",
   Link: "link",
 } as const;
+
+export const typesMappingFromDomainToNotion: Record<
+  CharacterType,
+  keyof typeof typesMappingFromNotionToDomain
+> = {
+  verb: "Verb",
+  noun: "Noun",
+  adjective: "Adjective",
+  adverb: "Adverb",
+  link: "Link",
+};
 
 const levelsOfConfidenceMappingFromNotionToDomain = {
   "✅": "high",
@@ -78,9 +89,9 @@ export const mapNotionCharacterToChineseCharacter = ({
   const addedAt = extractNotionDate(
     properties[propertiesMappingFromDomainToNotion.addedAt]
   );
-  const type = extractMultiSelectFirstValue<keyof typeof typesMapping>(
-    properties[propertiesMappingFromDomainToNotion.type]
-  );
+  const type = extractMultiSelectFirstValue<
+    keyof typeof typesMappingFromNotionToDomain
+  >(properties[propertiesMappingFromDomainToNotion.type]);
   const importance = extractSelectValue<
     keyof typeof importanceMappingFromNotionToDomain
   >(properties[propertiesMappingFromDomainToNotion.importance]);
@@ -100,7 +111,7 @@ export const mapNotionCharacterToChineseCharacter = ({
     translation,
     example,
     addedAt,
-    type: type ? typesMapping[type] : null,
+    type: type ? typesMappingFromNotionToDomain[type] : null,
     importance: importance
       ? importanceMappingFromNotionToDomain[importance]
       : null,

@@ -44,9 +44,9 @@ const notionPropertyIsRichTextDatabaseProperty = (
 
 export const extractNotionRichText = (
   property: DatabasePropertyConfigResponse
-): string | null => {
+): string => {
   if (notionPropertyIsRichTextDatabaseProperty(property)) {
-    return property.rich_text[0]?.plain_text ?? null;
+    return property.rich_text.map((text) => text.plain_text).join("");
   }
   throw new Error("Property is not a rich text: " + JSON.stringify(property));
 };

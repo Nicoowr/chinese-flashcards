@@ -1,10 +1,12 @@
+export type CharacterType = "verb" | "noun" | "adjective" | "adverb" | "link";
+
 export type ChineseCharacter = {
   id: string;
   character: string;
   translation: string | null;
   example: string | null;
   addedAt: Date | null;
-  type: "verb" | "noun" | "adjective" | "adverb" | "link" | null;
+  type: CharacterType | null;
   importance: "high" | "medium" | "low" | null;
   lastSeenAt: Date | null;
   numberOfCorrectAnswers: number | null;

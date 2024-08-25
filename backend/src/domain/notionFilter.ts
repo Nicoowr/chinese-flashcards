@@ -2,56 +2,76 @@ import dayjs from "dayjs";
 import {
   propertiesMappingFromDomainToNotion,
   importanceMappingFromDomainToNotion,
+  typesMappingFromDomainToNotion,
 } from "./mappers";
-import { ChineseCharacter } from "./types";
+import { CharacterType, ChineseCharacter } from "./types";
+import { compact } from "lodash-es";
 
-export const notKnownCharactersFilter = {
-  or: [
-    {
-      and: [
-        {
-          property: propertiesMappingFromDomainToNotion.lastSeenAt,
-          date: {
-            before: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
+export const notKnownCharactersFilter = ({
+  characterType,
+}: {
+  characterType: CharacterType | null;
+}) => {
+  return {
+    or: [
+      {
+        and: compact([
+          {
+            property: propertiesMappingFromDomainToNotion.lastSeenAt,
+            date: {
+              before: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
+            },
           },
-        },
-        {
-          property: propertiesMappingFromDomainToNotion.levelOfConfidence,
-          status: {
-            equals: "✅",
+          {
+            property: propertiesMappingFromDomainToNotion.levelOfConfidence,
+            status: {
+              equals: "✅",
+            },
           },
-        },
-        {
-          property: propertiesMappingFromDomainToNotion.importance,
-          select: {
-            equals: importanceMappingFromDomainToNotion.high,
+          {
+            property: propertiesMappingFromDomainToNotion.importance,
+            select: {
+              equals: importanceMappingFromDomainToNotion.high,
+            },
           },
-        },
-      ],
-    },
-    {
-      and: [
-        {
-          property: propertiesMappingFromDomainToNotion.lastSeenAt,
-          date: {
-            before: dayjs().subtract(1, "week").format("YYYY-MM-DD"),
+          characterType && {
+            property: propertiesMappingFromDomainToNotion.type,
+            multi_select: {
+              contains: typesMappingFromDomainToNotion[characterType],
+            },
           },
-        },
-        {
-          property: propertiesMappingFromDomainToNotion.levelOfConfidence,
-          status: {
-            equals: "❌",
+        ]),
+      },
+      {
+        and: compact([
+          {
+            property: propertiesMappingFromDomainToNotion.lastSeenAt,
+            date: {
+              before: dayjs().subtract(1, "week").format("YYYY-MM-DD"),
+            },
           },
-        },
-        {
-          property: propertiesMappingFromDomainToNotion.importance,
-          select: {
-            equals: importanceMappingFromDomainToNotion.high,
+          {
+            property: propertiesMappingFromDomainToNotion.levelOfConfidence,
+            status: {
+              equals: "❌",
+            },
           },
-        },
-      ],
-    },
-  ],
+          {
+            property: propertiesMappingFromDomainToNotion.importance,
+            select: {
+              equals: importanceMappingFromDomainToNotion.high,
+            },
+          },
+          characterType && {
+            property: propertiesMappingFromDomainToNotion.type,
+            multi_select: {
+              contains: typesMappingFromDomainToNotion[characterType],
+            },
+          },
+        ]),
+      },
+    ],
+  };
 };
 
 // This means that everytime a character is remembered, we can add 2 more weeks before considering it as forgotten again

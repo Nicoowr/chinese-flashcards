@@ -26,7 +26,7 @@ const serverlessConfig: Serverless = {
         {
           httpApi: {
             path: "/fetch-chinese-character",
-            method: "get",
+            method: "post",
           },
         },
       ],
