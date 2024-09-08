@@ -22,7 +22,7 @@ export const SelectCharacterType = ({
   return (
     <Select onValueChange={(value) => handleCharacterTypeChange(value)}>
       <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Character type" />
+        <SelectValue placeholder="Type" />
       </SelectTrigger>
       <SelectContent>
         {characterTypeOptions.map((option) => (

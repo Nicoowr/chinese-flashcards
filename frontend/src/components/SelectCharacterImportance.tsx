@@ -1,3 +1,4 @@
+import { CharacterImportance } from "./types";
 import {
   Select,
   SelectContent,
@@ -16,13 +17,17 @@ export const SelectCharacterImportance = ({
   handleCharacterImportanceChange,
 }: {
   handleCharacterImportanceChange: (
-    handleCharacterImportanceChange: string
+    handleCharacterImportanceChange: CharacterImportance
   ) => void;
 }) => {
   return (
-    <Select onValueChange={(value) => handleCharacterImportanceChange(value)}>
+    <Select
+      onValueChange={(value) =>
+        handleCharacterImportanceChange(value as CharacterImportance)
+      }
+    >
       <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Character importance" />
+        <SelectValue placeholder="Importance" />
       </SelectTrigger>
       <SelectContent>
         {characterImportanceOptions.map((option) => (

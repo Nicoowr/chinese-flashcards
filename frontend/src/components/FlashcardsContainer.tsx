@@ -22,7 +22,7 @@ To read more about using these font, please visit the Next.js documentation:
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { SelectCharacterType } from "./SelectCharacterType";
-import { ChineseCharacter } from "./types";
+import { CharacterImportance, ChineseCharacter } from "./types";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { SelectCharacterImportance } from "./SelectCharacterImportance";
@@ -87,9 +87,8 @@ export function FlashcardsContainer() {
 
   const [characterType, setCharacterType] = useState<string | null>(null);
 
-  const [characterImportance, setCharacterImportance] = useState<string | null>(
-    null
-  );
+  const [characterImportance, setCharacterImportance] =
+    useState<CharacterImportance | null>("high");
 
   const { data, refetch } = useQuery<ChineseCharacter>(
     "chineseCharacter",
@@ -142,12 +141,14 @@ export function FlashcardsContainer() {
       <Card className="absolute top-4 right-4 bg-card px-4 py-2 rounded-lg text-sm font-medium">
         {numberOfCharacterFetched}
       </Card>
-      <div className="flex w-full max-w-2xl">
-        <SelectCharacterType handleCharacterTypeChange={setCharacterType} />
-        <SelectCharacterImportance
-          handleCharacterImportanceChange={setCharacterImportance}
-        />
-        <Card className="w-full max-w-2xl p-10 space-y-8 bg-card ml-4">
+      <div className="flex w-full max-w-5xl gap-2">
+        <div className="flex flex-col gap-2 w-1/4">
+          <SelectCharacterType handleCharacterTypeChange={setCharacterType} />
+          <SelectCharacterImportance
+            handleCharacterImportanceChange={setCharacterImportance}
+          />
+        </div>
+        <Card className="w-3/4 p-10 space-y-8 bg-card">
           <div className="flex flex-col items-center">
             <div className="flex flex-col items-center gap-4">
               <h2 className="text-4xl font-bold">{data?.translation}</h2>
