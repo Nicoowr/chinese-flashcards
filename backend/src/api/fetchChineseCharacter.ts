@@ -4,13 +4,19 @@ import {
   notKnownCharactersFilter,
   selectRandomCharacter,
 } from "../domain/notionFilter";
-import { CharacterType } from "../domain/types";
+import { CharacterType, CharacterImportance } from "../domain/types";
 
 export const handler = async (event: { body: string }) => {
   console.log("Event", event);
-  const payload = JSON.parse(event.body) as { characterType: CharacterType };
+  const payload = JSON.parse(event.body) as {
+    characterType: CharacterType;
+    characterImportance: CharacterImportance;
+  };
   const eligibleCharacters = await fetchChineseCharactersFromDatabase(
-    notKnownCharactersFilter({ characterType: payload.characterType }),
+    notKnownCharactersFilter({
+      characterType: payload.characterType,
+      characterImportance: payload.characterImportance,
+    }),
     50
   );
 

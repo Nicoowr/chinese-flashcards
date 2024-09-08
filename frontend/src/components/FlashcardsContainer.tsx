@@ -25,15 +25,18 @@ import { SelectCharacterType } from "./SelectCharacterType";
 import { ChineseCharacter } from "./types";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
+import { SelectCharacterImportance } from "./SelectCharacterImportance";
 
 const fetchChineseCharacter = async ({
   characterType,
+  characterImportance,
 }: {
   characterType: string | null;
+  characterImportance: string | null;
 }) => {
   const response = await fetch("/api/fetch-chinese-character", {
     method: "POST",
-    body: JSON.stringify({ characterType }),
+    body: JSON.stringify({ characterType, characterImportance }),
     headers: {
       "Content-Type": "application/json",
     },
@@ -84,9 +87,13 @@ export function FlashcardsContainer() {
 
   const [characterType, setCharacterType] = useState<string | null>(null);
 
+  const [characterImportance, setCharacterImportance] = useState<string | null>(
+    null
+  );
+
   const { data, refetch } = useQuery<ChineseCharacter>(
     "chineseCharacter",
-    () => fetchChineseCharacter({ characterType }),
+    () => fetchChineseCharacter({ characterType, characterImportance }),
     { refetchOnWindowFocus: false }
   );
 
@@ -137,6 +144,9 @@ export function FlashcardsContainer() {
       </Card>
       <div className="flex w-full max-w-2xl">
         <SelectCharacterType handleCharacterTypeChange={setCharacterType} />
+        <SelectCharacterImportance
+          handleCharacterImportanceChange={setCharacterImportance}
+        />
         <Card className="w-full max-w-2xl p-10 space-y-8 bg-card ml-4">
           <div className="flex flex-col items-center">
             <div className="flex flex-col items-center gap-4">

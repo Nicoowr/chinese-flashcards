@@ -4,13 +4,15 @@ import {
   importanceMappingFromDomainToNotion,
   typesMappingFromDomainToNotion,
 } from "./mappers";
-import { CharacterType, ChineseCharacter } from "./types";
+import { CharacterType, CharacterImportance, ChineseCharacter } from "./types";
 import { compact } from "lodash-es";
 
 export const notKnownCharactersFilter = ({
   characterType,
+  characterImportance,
 }: {
   characterType: CharacterType | null;
+  characterImportance: CharacterImportance | null;
 }) => {
   return {
     or: [
@@ -28,10 +30,10 @@ export const notKnownCharactersFilter = ({
               equals: "✅",
             },
           },
-          {
+          characterImportance && {
             property: propertiesMappingFromDomainToNotion.importance,
             select: {
-              equals: importanceMappingFromDomainToNotion.high,
+              equals: importanceMappingFromDomainToNotion[characterImportance],
             },
           },
           characterType && {
@@ -56,10 +58,10 @@ export const notKnownCharactersFilter = ({
               equals: "❌",
             },
           },
-          {
+          characterImportance && {
             property: propertiesMappingFromDomainToNotion.importance,
             select: {
-              equals: importanceMappingFromDomainToNotion.high,
+              equals: importanceMappingFromDomainToNotion[characterImportance],
             },
           },
           characterType && {

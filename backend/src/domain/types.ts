@@ -1,5 +1,9 @@
 export type CharacterType = "verb" | "noun" | "adjective" | "adverb" | "link";
 
+export type CharacterImportance = "high" | "medium" | "low";
+
+export type CharacterConfidence = "high" | "low";
+
 export type ChineseCharacter = {
   id: string;
   character: string;
@@ -7,10 +11,10 @@ export type ChineseCharacter = {
   example: string | null;
   addedAt: Date | null;
   type: CharacterType | null;
-  importance: "high" | "medium" | "low" | null;
+  importance: CharacterImportance | null;
   lastSeenAt: Date | null;
   numberOfCorrectAnswers: number | null;
-  levelOfConfidence: "high" | "low" | null;
+  levelOfConfidence: CharacterConfidence | null;
 };
 
 export type ChineseCharacterFilter =

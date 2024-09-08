@@ -6,7 +6,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const response = await fetch(LAMBDA_ENDPOINT, {
       method: "POST",
-      body: JSON.stringify({ characterType: req.body.characterType }),
+      body: JSON.stringify({
+        characterType: req.body.characterType,
+        characterImportance: req.body.characterImportance,
+      }),
       headers: {
         "Content-Type": "application/json",
       },
