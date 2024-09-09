@@ -6,7 +6,10 @@ const notionFilter_1 = require("../domain/notionFilter");
 const handler = async (event) => {
     console.log("Event", event);
     const payload = JSON.parse(event.body);
-    const eligibleCharacters = await (0, notion_1.fetchChineseCharactersFromDatabase)((0, notionFilter_1.notKnownCharactersFilter)({ characterType: payload.characterType }), 50);
+    const eligibleCharacters = await (0, notion_1.fetchChineseCharactersFromDatabase)((0, notionFilter_1.notKnownCharactersFilter)({
+        characterType: payload.characterType,
+        characterImportance: payload.characterImportance,
+    }), 50);
     const charactersNeedingRefresh = eligibleCharacters.filter(notionFilter_1.characterNeedsRefresh);
     const selectedCharacter = (0, notionFilter_1.selectRandomCharacter)(charactersNeedingRefresh);
     return {

@@ -1,13 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mapNotionCharacterToChineseCharacter = exports.propertiesMappingFromDomainToNotion = exports.importanceMappingFromDomainToNotion = exports.levelOfConfidenceMappingFromDomainToNotion = void 0;
+exports.mapNotionCharacterToChineseCharacter = exports.propertiesMappingFromDomainToNotion = exports.importanceMappingFromDomainToNotion = exports.levelOfConfidenceMappingFromDomainToNotion = exports.typesMappingFromDomainToNotion = void 0;
 const notionFieldExtractors_1 = require("./notionFieldExtractors");
-const typesMapping = {
+const typesMappingFromNotionToDomain = {
     Verb: "verb",
     Noun: "noun",
     Adjective: "adjective",
     Adverb: "adverb",
     Link: "link",
+};
+exports.typesMappingFromDomainToNotion = {
+    verb: "Verb",
+    noun: "Noun",
+    adjective: "Adjective",
+    adverb: "Adverb",
+    link: "Link",
 };
 const levelsOfConfidenceMappingFromNotionToDomain = {
     "✅": "high",
@@ -55,7 +62,7 @@ const mapNotionCharacterToChineseCharacter = ({ id, properties, }) => {
         translation,
         example,
         addedAt,
-        type: type ? typesMapping[type] : null,
+        type: type ? typesMappingFromNotionToDomain[type] : null,
         importance: importance
             ? importanceMappingFromNotionToDomain[importance]
             : null,

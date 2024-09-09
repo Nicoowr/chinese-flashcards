@@ -20,101 +20,46 @@ To read more about using these font, please visit the Next.js documentation:
 "use client";
 
 import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "react-query";
-import { SelectCharacterType } from "./SelectCharacterType";
-import { CharacterImportance, ChineseCharacter } from "./types";
-import { Button } from "./ui/button";
+import { CharacterPanel } from "./CharacterPanel/CharacterPanel";
+import { FiltersPanel } from "./FiltersPanel/FiltersPanel";
+import { CharacterImportance, CharacterType } from "./types";
 import { Card } from "./ui/card";
-import { SelectCharacterImportance } from "./SelectCharacterImportance";
+import { useFetchChineseCharacter } from "./FlashcardsContainer.queries";
+import {
+  useSetCharacterUnknown,
+  useSetCharacterKnown,
+} from "./FlashcardsContainer.mutations";
 
-const fetchChineseCharacter = async ({
-  characterType,
-  characterImportance,
-}: {
-  characterType: string | null;
-  characterImportance: string | null;
-}) => {
-  const response = await fetch("/api/fetch-chinese-character", {
-    method: "POST",
-    body: JSON.stringify({ characterType, characterImportance }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return response.json();
-};
-
-const setCharacterUnknown = async (id: string) => {
-  const response = await fetch("/api/character-unknown", {
-    method: "POST",
-    body: JSON.stringify({ id }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return response.json();
-};
-
-const setCharacterKnown = async (id: string) => {
-  const response = await fetch("/api/character-known", {
-    method: "POST",
-    body: JSON.stringify({ id }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return response.json();
-};
-
-export function FlashcardsContainer() {
-  const { mutateAsync: handleCharacterUnknown } =
-    useMutation(setCharacterUnknown);
-
-  const { mutateAsync: handleCharacterKnown } = useMutation(setCharacterKnown);
-
+const useAppState = () => {
   const [showIdeogram, setShowIdeogram] = useState(false);
-
   const [numberOfCharacterFetched, setNumberOfCharacterFetched] = useState(1);
-
-  const [characterType, setCharacterType] = useState<string | null>(null);
-
+  const [characterType, setCharacterType] = useState<CharacterType | null>(
+    null
+  );
   const [characterImportance, setCharacterImportance] =
     useState<CharacterImportance | null>("high");
 
-  const { data, refetch } = useQuery<ChineseCharacter>(
-    "chineseCharacter",
-    () => fetchChineseCharacter({ characterType, characterImportance }),
-    { refetchOnWindowFocus: false }
-  );
+  return {
+    showIdeogram,
+    setShowIdeogram,
+    numberOfCharacterFetched,
+    setNumberOfCharacterFetched,
+    characterType,
+    setCharacterType,
+    characterImportance,
+    setCharacterImportance,
+  };
+};
 
-  const handleCheck = async () => {
-    setShowIdeogram(false);
-    if (data) {
-      await handleCharacterKnown(data.id);
-    }
-    setNumberOfCharacterFetched((prevState) => prevState + 1);
-    refetch();
-  };
-  const handleReveal = () => {
-    setShowIdeogram((prevState) => !prevState);
-  };
-  const handleUnknown = async () => {
-    setShowIdeogram(false);
-    if (data) {
-      await handleCharacterUnknown(data.id);
-    }
-    setNumberOfCharacterFetched((prevState) => prevState + 1);
-    refetch();
-  };
+const useKeyboardShortcuts = ({
+  handleCheck,
+  handleReveal,
+  handleUnknown,
+}: {
+  handleCheck: () => void;
+  handleReveal: () => void;
+  handleUnknown: () => void;
+}) => {
   useEffect(() => {
     const handleKeyDown = async (event: KeyboardEvent) => {
       switch (event.key) {
@@ -136,88 +81,72 @@ export function FlashcardsContainer() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleCheck, handleReveal, handleUnknown]);
+};
+
+export function FlashcardsContainer() {
+  const {
+    showIdeogram,
+    setShowIdeogram,
+    numberOfCharacterFetched,
+    setNumberOfCharacterFetched,
+    characterType,
+    setCharacterType,
+    characterImportance,
+    setCharacterImportance,
+  } = useAppState();
+
+  const { data, refetch, isFetching } = useFetchChineseCharacter({
+    characterType,
+    characterImportance,
+  });
+  const { handleCharacterUnknown, isCharacterUnknownLoading } =
+    useSetCharacterUnknown();
+  const { handleCharacterKnown, isCharacterKnownLoading } =
+    useSetCharacterKnown();
+
+  const handleCheck = async () => {
+    setShowIdeogram(false);
+    if (data) {
+      await handleCharacterKnown(data.id);
+    }
+    setNumberOfCharacterFetched((prevState) => prevState + 1);
+    refetch();
+  };
+  const handleReveal = () => {
+    setShowIdeogram((prevState) => !prevState);
+  };
+  const handleUnknown = async () => {
+    setShowIdeogram(false);
+    if (data) {
+      await handleCharacterUnknown(data.id);
+    }
+    setNumberOfCharacterFetched((prevState) => prevState + 1);
+    refetch();
+  };
+  useKeyboardShortcuts({ handleCheck, handleReveal, handleUnknown });
+
+  const isLoading =
+    isCharacterUnknownLoading || isCharacterKnownLoading || isFetching;
+
   return (
     <div className="dark flex flex-col items-center justify-center h-screen bg-background text-card-foreground">
       <Card className="absolute top-4 right-4 bg-card px-4 py-2 rounded-lg text-sm font-medium">
         {numberOfCharacterFetched}
       </Card>
-      <div className="flex w-full max-w-5xl gap-2">
-        <div className="flex flex-col gap-2 w-1/4">
-          <SelectCharacterType handleCharacterTypeChange={setCharacterType} />
-          <SelectCharacterImportance
-            handleCharacterImportanceChange={setCharacterImportance}
-          />
-        </div>
-        <Card className="w-3/4 p-10 space-y-8 bg-card">
-          <div className="flex flex-col items-center">
-            <div className="flex flex-col items-center gap-4">
-              <h2 className="text-4xl font-bold">{data?.translation}</h2>
-            </div>
-            {showIdeogram && (
-              <>
-                <div className="text-6xl font-bold mt-6">{data?.character}</div>
-                <div className="text-xl mt-6">{data?.example}</div>
-              </>
-            )}
-          </div>
-          <div className="flex justify-center gap-6">
-            <Button onClick={handleCheck} className="text-lg px-6 py-3">
-              <CheckIcon className="h-6 w-6" />
-              Check
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleReveal}
-              className="text-lg px-6 py-3"
-            >
-              {showIdeogram ? "Hide" : "Reveal"}
-            </Button>
-            <Button onClick={handleUnknown} className="text-lg px-6 py-3">
-              <XIcon className="h-6 w-6" />
-              Unknown
-            </Button>
-          </div>
-        </Card>
+      <div className="flex w-full max-w-5xl">
+        <FiltersPanel
+          setCharacterType={setCharacterType}
+          setCharacterImportance={setCharacterImportance}
+        />
+        <CharacterPanel
+          data={data ?? null}
+          isLoading={isLoading}
+          showIdeogram={showIdeogram}
+          handleCheck={handleCheck}
+          handleReveal={handleReveal}
+          handleUnknown={handleUnknown}
+        />
       </div>
     </div>
-  );
-}
-
-function CheckIcon(props: { className: string }) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
-  );
-}
-
-function XIcon(props: { className: string }) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </svg>
   );
 }

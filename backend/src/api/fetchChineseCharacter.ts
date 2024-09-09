@@ -9,8 +9,8 @@ import { CharacterType, CharacterImportance } from "../domain/types";
 export const handler = async (event: { body: string }) => {
   console.log("Event", event);
   const payload = JSON.parse(event.body) as {
-    characterType: CharacterType;
-    characterImportance: CharacterImportance;
+    characterType: CharacterType | null;
+    characterImportance: CharacterImportance | null;
   };
   const eligibleCharacters = await fetchChineseCharactersFromDatabase(
     notKnownCharactersFilter({

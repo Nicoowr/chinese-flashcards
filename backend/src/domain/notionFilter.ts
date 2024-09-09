@@ -14,7 +14,7 @@ export const notKnownCharactersFilter = ({
   characterType: CharacterType | null;
   characterImportance: CharacterImportance | null;
 }) => {
-  return {
+  const filter = {
     or: [
       {
         and: compact([
@@ -74,6 +74,10 @@ export const notKnownCharactersFilter = ({
       },
     ],
   };
+
+  console.log("Filter", filter);
+
+  return filter;
 };
 
 // This means that everytime a character is remembered, we can add 2 more weeks before considering it as forgotten again

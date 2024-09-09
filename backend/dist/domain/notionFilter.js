@@ -7,7 +7,7 @@ exports.selectRandomCharacter = exports.characterNeedsRefresh = exports.notKnown
 const dayjs_1 = __importDefault(require("dayjs"));
 const mappers_1 = require("./mappers");
 const lodash_es_1 = require("lodash-es");
-const notKnownCharactersFilter = ({ characterType, }) => {
+const notKnownCharactersFilter = ({ characterType, characterImportance, }) => {
     return {
         or: [
             {
@@ -24,16 +24,16 @@ const notKnownCharactersFilter = ({ characterType, }) => {
                             equals: "✅",
                         },
                     },
-                    {
+                    characterImportance && {
                         property: mappers_1.propertiesMappingFromDomainToNotion.importance,
                         select: {
-                            equals: mappers_1.importanceMappingFromDomainToNotion.high,
+                            equals: mappers_1.importanceMappingFromDomainToNotion[characterImportance],
                         },
                     },
                     characterType && {
                         property: mappers_1.propertiesMappingFromDomainToNotion.type,
                         multi_select: {
-                            contains: characterType,
+                            contains: mappers_1.typesMappingFromDomainToNotion[characterType],
                         },
                     },
                 ]),
@@ -52,16 +52,16 @@ const notKnownCharactersFilter = ({ characterType, }) => {
                             equals: "❌",
                         },
                     },
-                    {
+                    characterImportance && {
                         property: mappers_1.propertiesMappingFromDomainToNotion.importance,
                         select: {
-                            equals: mappers_1.importanceMappingFromDomainToNotion.high,
+                            equals: mappers_1.importanceMappingFromDomainToNotion[characterImportance],
                         },
                     },
                     characterType && {
                         property: mappers_1.propertiesMappingFromDomainToNotion.type,
                         multi_select: {
-                            contains: characterType,
+                            contains: mappers_1.typesMappingFromDomainToNotion[characterType],
                         },
                     },
                 ]),
