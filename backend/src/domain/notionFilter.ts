@@ -49,7 +49,7 @@ export const notKnownCharactersFilter = ({
           {
             property: propertiesMappingFromDomainToNotion.lastSeenAt,
             date: {
-              before: dayjs().subtract(1, "week").format("YYYY-MM-DD"),
+              before: dayjs().subtract(3, "day").format("YYYY-MM-DD"),
             },
           },
           {
