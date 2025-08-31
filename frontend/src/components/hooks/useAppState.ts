@@ -28,7 +28,7 @@ export const useAppState = () => {
     const newState = {
       previousCharacter: currentCharacter,
       currentCharacter: nextCharacter,
-      nextCharacter: null as ChineseCharacter | null,
+      nextCharacter: null,
     };
     setPreviousCharacter(newState.previousCharacter);
     setCurrentCharacter(newState.currentCharacter);
@@ -44,16 +44,14 @@ export const useAppState = () => {
   const shiftBack = ({
     previousCharacter,
     currentCharacter,
-    nextCharacter,
   }: {
     previousCharacter: ChineseCharacter | null;
     currentCharacter: ChineseCharacter | null;
-    nextCharacter: ChineseCharacter | null;
   }) => {
     const newState = {
-      previousCharacter: null as ChineseCharacter | null,
+      previousCharacter: null,
       currentCharacter: previousCharacter,
-      nextCharacter: nextCharacter ?? currentCharacter,
+      nextCharacter: currentCharacter,
     };
     setPreviousCharacter(newState.previousCharacter);
     setCurrentCharacter(newState.currentCharacter);
