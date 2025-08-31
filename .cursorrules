@@ -1,6 +1,6 @@
 ### Cursor rules
 
-These rules guide the AI in Cursor when generating or refactoring code in this repository.
+These rules guide the AI in Cursor when generating or refactoring code across projects.
 
 ### Functional programming
 
@@ -13,27 +13,48 @@ These rules guide the AI in Cursor when generating or refactoring code in this r
 - Use `map`, `filter`, `flatMap`, `some`, `every`, and Promise combinators over imperative mutation. Do not use `reduce`
 - In React, use functional state updates; never mutate `props` or state in place.
 
+### State organization
+
+- Keep container/components thin; move UI state and queue mechanics into named hooks (e.g., `useAppState`).
+- Implement queue transitions (e.g., `shiftForward`, `shiftBack`) inside the state hook; they must perform all related state updates internally (including updating any unique-id tracking) and return the new state for reference. Callers must not duplicate this logic.
+- Use a separate hook for configuration-driven effects (e.g., `useOnConfigurationChange`) to reset state and load initial items; avoid placing these effects directly in components.
+
 ### Variable and function naming
 
 - Variable names must be meaningful and self‑explanatory; avoid abbreviations and single‑letter names.
 - Use domain terminology consistently.
 - Name variables as nouns; name functions as verbs or verb phrases.
 - Name booleans with `is`, `has`, `should`, or `can` prefixes.
-- Name collections in plural or with suffixes like `List`, `Set`, `Map`; for dictionaries use `By`/`To` (e.g., `characterIdToCard`).
+- Name collections in plural or with suffixes like `List`, `Set`, `Map`; for dictionaries use `By`/`To` (e.g., `entityIdToItem`).
 - Avoid generic names like `data`, `obj`, `res`, or `tmp`.
+- Prefer explicit queue names: `previousItem`, `currentItem`, `nextItem`.
+- Use `seenIds` (array) for uniqueness tracking; derive counts via `seenIds.length`.
 
 ### React
 
-- `useEffect` must always be encapsulated in a meaningful, named custom hook; do not call `useEffect` directly inside components.
+- `useEffect` must be encapsulated in a meaningful, named custom hook; avoid calling `useEffect` directly inside components.
+- Encapsulate keyboard listeners in a small hook; ensure Backspace handlers call `event.preventDefault()`.
+- Keep presentation components dumb; pass handlers and booleans like `canGoBack` down via props.
 
 ### Collections and control flow
 
-- Do not use `Set`. Model set-like semantics with arrays and helpers (e.g., `includes`, `some`, `every`).
+- Prefer arrays over `Set` for uniqueness; model set-like semantics with helpers (e.g., `includes`, `some`, `every`).
 - Do not use inline ifs. Avoid ternaries and short-circuit conditionals for control flow or rendering; prefer explicit `if` statements or small helper functions.
+- For uniqueness, prefer `uniq(compact([...prev, value]))` over set conversion.
 
 ### Libraries
 
-- If `lodash-es` is installed, prefer named imports for: `sum`, `sumBy`, `max`, `maxBy`, `min`, `minBy`, `orderBy`, `compact`, `groupBy`, `values`.
+- If a utility library like `lodash-es` is installed, prefer named imports for: `sum`, `sumBy`, `max`, `maxBy`, `min`, `minBy`, `orderBy`, `compact`, `uniq`, `groupBy`, `values`.
+
+### Data fetching
+
+- Wrap data fetching in hooks that expose imperative fetchers. Prefer query libraries that support disabling auto-fetch and calling `refetch()` imperatively under the hood.
+- Do not export raw fetch functions for direct use in components; prefer the hook’s API.
+- Handle network errors inside hooks and surface brief, non-blocking notifications there when possible.
+
+### UI and toasts
+
+- Mount a single notification provider once at the app root. Show brief error toasts for mutation/fetch failures; do not block the UI.
 
 ### Simplicity
 
