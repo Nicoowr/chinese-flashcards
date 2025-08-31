@@ -19,46 +19,31 @@ To read more about using these font, please visit the Next.js documentation:
 **/
 "use client";
 
-import { useEffect, useState } from "react";
-import { CharacterPanel } from "./CharacterPanel/CharacterPanel";
+import { compact } from "lodash-es";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { CharacterPanelView as CharacterPanel } from "./CharacterPanel/CharacterPanel";
 import { FiltersPanel } from "./FiltersPanel/FiltersPanel";
-import { CharacterImportance, CharacterType } from "./types";
-import { Card } from "./ui/card";
-import { useFetchChineseCharacter } from "./FlashcardsContainer.queries";
 import {
-  useSetCharacterUnknown,
   useSetCharacterKnown,
+  useSetCharacterUnknown,
 } from "./FlashcardsContainer.mutations";
-
-const useAppState = () => {
-  const [showIdeogram, setShowIdeogram] = useState(false);
-  const [numberOfCharacterFetched, setNumberOfCharacterFetched] = useState(1);
-  const [characterType, setCharacterType] = useState<CharacterType | null>(
-    null
-  );
-  const [characterImportance, setCharacterImportance] =
-    useState<CharacterImportance | null>("high");
-
-  return {
-    showIdeogram,
-    setShowIdeogram,
-    numberOfCharacterFetched,
-    setNumberOfCharacterFetched,
-    characterType,
-    setCharacterType,
-    characterImportance,
-    setCharacterImportance,
-  };
-};
+import { useFetchChineseCharacter } from "./FlashcardsContainer.queries";
+import { useAppState } from "./hooks/useAppState";
+import { useOnConfigurationChange } from "./hooks/useOnConfgiurationChange";
+import { ChineseCharacter } from "./types";
+import { Card } from "./ui/card";
 
 const useKeyboardShortcuts = ({
   handleCheck,
   handleReveal,
   handleUnknown,
+  handleBack,
 }: {
   handleCheck: () => void;
   handleReveal: () => void;
   handleUnknown: () => void;
+  handleBack: () => void;
 }) => {
   useEffect(() => {
     const handleKeyDown = async (event: KeyboardEvent) => {
@@ -72,6 +57,10 @@ const useKeyboardShortcuts = ({
         case "ArrowUp":
           handleReveal();
           break;
+        case "Backspace":
+          event.preventDefault();
+          handleBack();
+          break;
         default:
           break;
       }
@@ -80,58 +69,133 @@ const useKeyboardShortcuts = ({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleCheck, handleReveal, handleUnknown]);
+  }, [handleCheck, handleReveal, handleUnknown, handleBack]);
 };
 
 export function FlashcardsContainer() {
   const {
     showIdeogram,
     setShowIdeogram,
-    numberOfCharacterFetched,
-    setNumberOfCharacterFetched,
     characterType,
     setCharacterType,
     characterImportance,
     setCharacterImportance,
+    previousCharacter,
+    setPreviousCharacter,
+    currentCharacter,
+    setCurrentCharacter,
+    nextCharacter,
+    setNextCharacter,
+    seenCharacterIds,
+    setSeenCharacterIds,
+    shiftForward,
+    shiftBack,
   } = useAppState();
-
-  const { data, refetch, isFetching } = useFetchChineseCharacter({
+  const { handleCharacterUnknown } = useSetCharacterUnknown();
+  const { handleCharacterKnown } = useSetCharacterKnown();
+  const { fetchCharacter } = useFetchChineseCharacter({
     characterType,
     characterImportance,
   });
-  const { handleCharacterUnknown, isCharacterUnknownLoading } =
-    useSetCharacterUnknown();
-  const { handleCharacterKnown, isCharacterKnownLoading } =
-    useSetCharacterKnown();
+
+  useOnConfigurationChange({
+    fetchCharacter,
+    characterType,
+    characterImportance,
+    setShowIdeogram,
+    setPreviousCharacter,
+    setCurrentCharacter,
+    setNextCharacter,
+    setSeenCharacterIds,
+  });
+
+  const prefetchNextCharacter = async (
+    previousCharacter: ChineseCharacter | null,
+    currentCharacter: ChineseCharacter | null,
+    nextCharacter: ChineseCharacter | null
+  ) => {
+    const characterIdsExcluded = compact([
+      previousCharacter?.id,
+      currentCharacter?.id,
+      nextCharacter?.id,
+    ]);
+    try {
+      const fetched = await fetchCharacter();
+      setNextCharacter(fetched);
+    } catch (e) {
+      toast.error("Failed to fetch next card.");
+    }
+  };
 
   const handleCheck = async () => {
     setShowIdeogram(false);
-    if (data) {
-      await handleCharacterKnown(data.id);
+    if (!currentCharacter) {
+      console.error("No current character when handling check.");
+      return;
     }
-    setNumberOfCharacterFetched((prevState) => prevState + 1);
-    refetch();
+    const oldId = currentCharacter.id;
+    const shifted = shiftForward({
+      currentCharacter,
+      nextCharacter,
+    });
+    void handleCharacterKnown(oldId).catch(() =>
+      toast.error("Unable to update card, please try again.")
+    );
+    await prefetchNextCharacter(
+      shifted.previousCharacter,
+      shifted.currentCharacter,
+      shifted.nextCharacter
+    );
   };
   const handleReveal = () => {
     setShowIdeogram((prevState) => !prevState);
   };
   const handleUnknown = async () => {
     setShowIdeogram(false);
-    if (data) {
-      await handleCharacterUnknown(data.id);
+    if (!currentCharacter) {
+      console.error("No current character when handling unknown.");
+      return;
     }
-    setNumberOfCharacterFetched((prevState) => prevState + 1);
-    refetch();
+    const oldId = currentCharacter.id;
+    const shifted = shiftForward({
+      currentCharacter,
+      nextCharacter,
+    });
+    void handleCharacterUnknown(oldId).catch(() =>
+      toast.error("Unable to update card, please try again.")
+    );
+    await prefetchNextCharacter(
+      shifted.previousCharacter,
+      shifted.currentCharacter,
+      shifted.nextCharacter
+    );
   };
-  useKeyboardShortcuts({ handleCheck, handleReveal, handleUnknown });
 
-  const isLoading =
-    isCharacterUnknownLoading || isCharacterKnownLoading || isFetching;
+  const handleBack = () => {
+    if (!previousCharacter) {
+      console.error("No previous character when handling back.");
+      return;
+    }
+    shiftBack({
+      previousCharacter,
+      currentCharacter,
+      nextCharacter,
+    });
+  };
+  useKeyboardShortcuts({
+    handleCheck,
+    handleReveal,
+    handleUnknown,
+    handleBack,
+  });
+
+  const isLoading = currentCharacter === null;
+  const uniqueSeenCount = seenCharacterIds.length;
 
   return (
     <div className="dark flex flex-col items-center justify-center h-screen bg-background text-card-foreground">
       <Card className="absolute top-4 right-4 bg-card px-4 py-2 rounded-lg text-sm font-medium">
-        {numberOfCharacterFetched}
+        {uniqueSeenCount}
       </Card>
       <div className="flex w-full max-w-5xl">
         <FiltersPanel
@@ -139,12 +203,14 @@ export function FlashcardsContainer() {
           setCharacterImportance={setCharacterImportance}
         />
         <CharacterPanel
-          data={data ?? null}
+          data={currentCharacter ?? null}
           isLoading={isLoading}
           showIdeogram={showIdeogram}
           handleCheck={handleCheck}
           handleReveal={handleReveal}
           handleUnknown={handleUnknown}
+          handleBack={handleBack}
+          canGoBack={Boolean(previousCharacter)}
         />
       </div>
     </div>

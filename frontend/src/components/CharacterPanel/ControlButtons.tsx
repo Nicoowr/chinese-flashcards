@@ -6,17 +6,29 @@ export const ControlButtons = ({
   handleCheck,
   handleReveal,
   handleUnknown,
+  handleBack,
+  canGoBack,
   isLoading,
   showIdeogram,
 }: {
   handleCheck: () => void;
   handleReveal: () => void;
   handleUnknown: () => void;
+  handleBack: () => void;
+  canGoBack: boolean;
   isLoading: boolean;
   showIdeogram: boolean;
 }) => {
   return (
     <div className="flex justify-center gap-6">
+      <Button
+        variant="secondary"
+        disabled={isLoading || !canGoBack}
+        onClick={handleBack}
+        className="text-lg px-6 py-3"
+      >
+        Back
+      </Button>
       <Button
         disabled={isLoading}
         onClick={handleCheck}

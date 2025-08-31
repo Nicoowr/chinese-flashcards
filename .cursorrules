@@ -22,4 +22,21 @@ These rules guide the AI in Cursor when generating or refactoring code in this r
 - Name collections in plural or with suffixes like `List`, `Set`, `Map`; for dictionaries use `By`/`To` (e.g., `characterIdToCard`).
 - Avoid generic names like `data`, `obj`, `res`, or `tmp`.
 
+### React
+
+- `useEffect` must always be encapsulated in a meaningful, named custom hook; do not call `useEffect` directly inside components.
+
+### Collections and control flow
+
+- Do not use `Set`. Model set-like semantics with arrays and helpers (e.g., `includes`, `some`, `every`).
+- Do not use inline ifs. Avoid ternaries and short-circuit conditionals for control flow or rendering; prefer explicit `if` statements or small helper functions.
+
+### Libraries
+
+- If `lodash-es` is installed, prefer named imports for: `sum`, `sumBy`, `max`, `maxBy`, `min`, `minBy`, `orderBy`, `compact`, `groupBy`, `values`.
+
+### Simplicity
+
+- Do not overengineer. Prefer the simplest composable solution; avoid premature abstraction or optimization.
+
 

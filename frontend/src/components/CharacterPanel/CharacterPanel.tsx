@@ -3,20 +3,24 @@ import { ChineseCharacter } from "../types";
 import { Card } from "../ui/card";
 import { ControlButtons } from "./ControlButtons";
 
-export const CharacterPanel = ({
+export const CharacterPanelView = ({
   data,
   isLoading,
   showIdeogram,
   handleCheck,
   handleReveal,
   handleUnknown,
+  handleBack,
+  canGoBack,
 }: {
   data: ChineseCharacter | null;
   isLoading: boolean;
   showIdeogram: boolean;
-  handleCheck: () => void;
+  handleCheck: () => void | Promise<void>;
   handleReveal: () => void;
-  handleUnknown: () => void;
+  handleUnknown: () => void | Promise<void>;
+  handleBack: () => void | Promise<void>;
+  canGoBack: boolean;
 }) => {
   return (
     <Card className="w-3/4 p-10 space-y-8 bg-card">
@@ -42,6 +46,8 @@ export const CharacterPanel = ({
         handleCheck={handleCheck}
         handleReveal={handleReveal}
         handleUnknown={handleUnknown}
+        handleBack={handleBack}
+        canGoBack={canGoBack}
         isLoading={isLoading}
         showIdeogram={showIdeogram}
       />

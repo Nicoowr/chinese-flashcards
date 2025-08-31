@@ -1,5 +1,6 @@
 import { useQuery } from "react-query";
 import { CharacterImportance, CharacterType, ChineseCharacter } from "./types";
+import { toast } from "sonner";
 
 const fetchChineseCharacter = async ({
   characterType,
@@ -28,7 +29,7 @@ export const useFetchChineseCharacter = ({
   characterType: CharacterType | null;
   characterImportance: CharacterImportance | null;
 }) => {
-  const { data, refetch, isFetching } = useQuery<ChineseCharacter>(
+  const { refetch, isFetching } = useQuery<ChineseCharacter>(
     ["chineseCharacter", characterType, characterImportance],
     () =>
       fetchChineseCharacter({
@@ -36,9 +37,21 @@ export const useFetchChineseCharacter = ({
         characterImportance,
       }),
     {
+      enabled: false,
       refetchOnWindowFocus: false,
     }
   );
 
-  return { data, refetch, isFetching };
+  const fetchCharacter = async () => {
+    try {
+      const fetched = await refetch();
+      return fetched.data ?? null;
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to fetch card.");
+      return null;
+    }
+  };
+
+  return { fetchCharacter, isFetchingCharacter: isFetching };
 };
