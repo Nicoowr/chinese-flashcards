@@ -1,4 +1,5 @@
 import { useMutation } from "react-query";
+import { toast } from "sonner";
 
 const setCharacterUnknown = async (id: string) => {
   const response = await fetch("/api/character-unknown", {
@@ -28,12 +29,15 @@ const setCharacterKnown = async (id: string) => {
   return response.json();
 };
 
-
 export const useSetCharacterUnknown = () => {
   const {
     mutateAsync: handleCharacterUnknown,
     isLoading: isCharacterUnknownLoading,
-  } = useMutation(setCharacterUnknown);
+  } = useMutation(setCharacterUnknown, {
+    onError: (error) => {
+      toast.error("Set character unknown failed, please try again.");
+    },
+  });
   return { handleCharacterUnknown, isCharacterUnknownLoading };
 };
 
@@ -41,6 +45,10 @@ export const useSetCharacterKnown = () => {
   const {
     mutateAsync: handleCharacterKnown,
     isLoading: isCharacterKnownLoading,
-  } = useMutation(setCharacterKnown);
+  } = useMutation(setCharacterKnown, {
+    onError: (error) => {
+      toast.error("Set character known failed, please try again.");
+    },
+  });
   return { handleCharacterKnown, isCharacterKnownLoading };
 };
