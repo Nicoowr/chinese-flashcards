@@ -46,6 +46,7 @@ export const fetchChineseCharactersFromDatabase = async (
 
   console.log({
     "Fetched characters": cleanCharacters,
+    "Number of fetched characters": cleanCharacters.length,
   });
 
   return cleanCharacters;
