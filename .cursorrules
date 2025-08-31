@@ -1,0 +1,25 @@
+### Cursor rules
+
+These rules guide the AI in Cursor when generating or refactoring code in this repository.
+
+### Functional programming
+
+- Always prefer functional programming across backend and frontend.
+- Keep domain logic pure and side‑effect free; isolate I/O at the boundaries (API routes, handlers, adapters).
+- Favor immutability: never mutate inputs; return new arrays/objects via spread/utility methods.
+- Prefer function composition and small, single‑purpose functions.
+- Avoid classes, inheritance, and OOP patterns unless required by a framework API.
+- Do not use `for` nor `while` loops; prefer higher‑order functions and recursion.
+- Use `map`, `filter`, `flatMap`, `some`, `every`, and Promise combinators over imperative mutation. Do not use `reduce`
+- In React, use functional state updates; never mutate `props` or state in place.
+
+### Variable and function naming
+
+- Variable names must be meaningful and self‑explanatory; avoid abbreviations and single‑letter names.
+- Use domain terminology consistently.
+- Name variables as nouns; name functions as verbs or verb phrases.
+- Name booleans with `is`, `has`, `should`, or `can` prefixes.
+- Name collections in plural or with suffixes like `List`, `Set`, `Map`; for dictionaries use `By`/`To` (e.g., `characterIdToCard`).
+- Avoid generic names like `data`, `obj`, `res`, or `tmp`.
+
+
