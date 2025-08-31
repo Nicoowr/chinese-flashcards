@@ -35,6 +35,7 @@ export const useSetCharacterUnknown = () => {
     isLoading: isCharacterUnknownLoading,
   } = useMutation(setCharacterUnknown, {
     onError: (error) => {
+      console.error(error);
       toast.error("Set character unknown failed, please try again.");
     },
   });
@@ -47,6 +48,7 @@ export const useSetCharacterKnown = () => {
     isLoading: isCharacterKnownLoading,
   } = useMutation(setCharacterKnown, {
     onError: (error) => {
+      console.error(error);
       toast.error("Set character known failed, please try again.");
     },
   });

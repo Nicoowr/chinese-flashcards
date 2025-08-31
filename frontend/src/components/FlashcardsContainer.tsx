@@ -109,16 +109,7 @@ export function FlashcardsContainer() {
     setSeenCharacterIds,
   });
 
-  const prefetchNextCharacter = async (
-    previousCharacter: ChineseCharacter | null,
-    currentCharacter: ChineseCharacter | null,
-    nextCharacter: ChineseCharacter | null
-  ) => {
-    const characterIdsExcluded = compact([
-      previousCharacter?.id,
-      currentCharacter?.id,
-      nextCharacter?.id,
-    ]);
+  const prefetchNextCharacter = async () => {
     try {
       const fetched = await fetchCharacter();
       setNextCharacter(fetched);
@@ -134,18 +125,12 @@ export function FlashcardsContainer() {
       return;
     }
     const oldId = currentCharacter.id;
-    const shifted = shiftForward({
+    shiftForward({
       currentCharacter,
       nextCharacter,
     });
-    void handleCharacterKnown(oldId).catch(() =>
-      toast.error("Unable to update card, please try again.")
-    );
-    await prefetchNextCharacter(
-      shifted.previousCharacter,
-      shifted.currentCharacter,
-      shifted.nextCharacter
-    );
+    await handleCharacterKnown(oldId);
+    await prefetchNextCharacter();
   };
   const handleReveal = () => {
     setShowIdeogram((prevState) => !prevState);
@@ -157,18 +142,12 @@ export function FlashcardsContainer() {
       return;
     }
     const oldId = currentCharacter.id;
-    const shifted = shiftForward({
+    shiftForward({
       currentCharacter,
       nextCharacter,
     });
-    void handleCharacterUnknown(oldId).catch(() =>
-      toast.error("Unable to update card, please try again.")
-    );
-    await prefetchNextCharacter(
-      shifted.previousCharacter,
-      shifted.currentCharacter,
-      shifted.nextCharacter
-    );
+    await handleCharacterUnknown(oldId);
+    await prefetchNextCharacter();
   };
 
   const handleBack = () => {
@@ -179,7 +158,6 @@ export function FlashcardsContainer() {
     shiftBack({
       previousCharacter,
       currentCharacter,
-      nextCharacter,
     });
   };
   useKeyboardShortcuts({
