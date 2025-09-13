@@ -1,6 +1,7 @@
 import { Spinner } from "@radix-ui/themes";
 import { ChineseCharacter } from "../types";
 import { Card } from "../ui/card";
+import { SessionPieChart } from "../SessionPieChart";
 import { ControlButtons } from "./ControlButtons";
 
 export const CharacterPanelView = ({
@@ -12,6 +13,8 @@ export const CharacterPanelView = ({
   handleUnknown,
   handleBack,
   canGoBack,
+  knownCount,
+  totalCount,
 }: {
   data: ChineseCharacter | null;
   isLoading: boolean;
@@ -21,6 +24,8 @@ export const CharacterPanelView = ({
   handleUnknown: () => void | Promise<void>;
   handleBack: () => void | Promise<void>;
   canGoBack: boolean;
+  knownCount: number;
+  totalCount: number;
 }) => {
   return (
     <Card className="w-3/4 p-10 space-y-8 bg-card">
@@ -42,15 +47,20 @@ export const CharacterPanelView = ({
           )}
         </div>
       )}
-      <ControlButtons
-        handleCheck={handleCheck}
-        handleReveal={handleReveal}
-        handleUnknown={handleUnknown}
-        handleBack={handleBack}
-        canGoBack={canGoBack}
-        isLoading={isLoading}
-        showIdeogram={showIdeogram}
-      />
+      <div className="flex flex-col items-center space-y-2">
+        <ControlButtons
+          handleCheck={handleCheck}
+          handleReveal={handleReveal}
+          handleUnknown={handleUnknown}
+          handleBack={handleBack}
+          canGoBack={canGoBack}
+          isLoading={isLoading}
+          showIdeogram={showIdeogram}
+        />
+        <div className="w-full">
+          <SessionPieChart knownCount={knownCount} totalCount={totalCount} />
+        </div>
+      </div>
     </Card>
   );
 };

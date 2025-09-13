@@ -88,6 +88,8 @@ export function FlashcardsContainer() {
     setNextCharacter,
     seenCharacterIds,
     setSeenCharacterIds,
+    knownCount,
+    incrementKnownCount,
     shiftForward,
     shiftBack,
   } = useAppState();
@@ -129,6 +131,7 @@ export function FlashcardsContainer() {
       currentCharacter,
       nextCharacter,
     });
+    incrementKnownCount();
     await handleCharacterKnown(oldId);
     await prefetchNextCharacter();
   };
@@ -189,6 +192,8 @@ export function FlashcardsContainer() {
           handleUnknown={handleUnknown}
           handleBack={handleBack}
           canGoBack={Boolean(previousCharacter)}
+          knownCount={knownCount}
+          totalCount={uniqueSeenCount}
         />
       </div>
     </div>

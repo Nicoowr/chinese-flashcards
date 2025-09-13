@@ -17,6 +17,7 @@ export const useAppState = () => {
     null
   );
   const [seenCharacterIds, setSeenCharacterIds] = useState<string[]>([]);
+  const [knownCount, setKnownCount] = useState<number>(0);
 
   const shiftForward = ({
     currentCharacter,
@@ -64,6 +65,10 @@ export const useAppState = () => {
     return newState;
   };
 
+  const incrementKnownCount = () => {
+    setKnownCount((prev) => prev + 1);
+  };
+
   return {
     showIdeogram,
     setShowIdeogram,
@@ -79,6 +84,8 @@ export const useAppState = () => {
     setNextCharacter,
     seenCharacterIds,
     setSeenCharacterIds,
+    knownCount,
+    incrementKnownCount,
     shiftForward,
     shiftBack,
   };
