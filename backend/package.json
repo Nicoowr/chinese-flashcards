@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "pnpm tsx serverless.ts",
-    "deploy": "pnpm build && serverless deploy"
+    "deploy": "pnpm build && serverless deploy",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx"
   },
   "keywords": [],
   "author": "",

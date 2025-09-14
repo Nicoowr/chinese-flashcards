@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, gitbutler/workspace]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  frontend-checks:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: cd frontend && pnpm install
+
+      - name: Type check
+        run: cd frontend && pnpm run type-check
+
+      - name: Lint
+        run: cd frontend && pnpm run lint
