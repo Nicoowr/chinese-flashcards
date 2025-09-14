@@ -1,4 +1,4 @@
-import { DatabaseObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import {
   extractNotionTitle,
   extractNotionRichText,
@@ -73,10 +73,7 @@ export const propertiesMappingFromDomainToNotion: Record<
 export const mapNotionCharacterToChineseCharacter = ({
   id,
   properties,
-}: {
-  id: string;
-  properties: DatabaseObjectResponse["properties"];
-}): ChineseCharacter => {
+}: PageObjectResponse): ChineseCharacter => {
   const character = extractNotionTitle(
     properties[propertiesMappingFromDomainToNotion.character]
   );

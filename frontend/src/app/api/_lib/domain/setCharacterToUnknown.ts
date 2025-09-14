@@ -12,13 +12,11 @@ export const setCharacterToUnknown = async (id: string): Promise<void> => {
     page_id: id,
     properties: {
       [propertiesMappingFromDomainToNotion.lastSeenAt]: {
-        type: "date",
         date: {
           start: dayjs().format("YYYY-MM-DD"),
         },
       },
       [propertiesMappingFromDomainToNotion.levelOfConfidence]: {
-        type: "status",
         status: {
           name: levelOfConfidenceMappingFromDomainToNotion["low"],
         },
