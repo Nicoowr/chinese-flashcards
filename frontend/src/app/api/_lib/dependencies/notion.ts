@@ -1,14 +1,10 @@
-import { Client } from "@notionhq/client";
-import { DatabaseObjectResponse } from "@notionhq/client/build/src/api-endpoints";
-import { config } from "dotenv";
+import { Client, isFullPage } from "@notionhq/client";
+import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { mapNotionCharacterToChineseCharacter } from "../domain/mappers";
 import { ChineseCharacter } from "../domain/types";
-
-config();
+import { NOTION_VOCABULARY_DATASOURCE_ID } from "./constants";
 
 export const notionClient = new Client({ auth: process.env.NOTION_API_KEY });
-
-const NOTION_DATABASE_ID = "e9a17e9f569944f2bbde3bfe0929cddc";
 
 export const fetchChineseCharacterById = async (
   id: string
@@ -17,8 +13,13 @@ export const fetchChineseCharacterById = async (
     page_id: id,
   });
 
-  // @ts-ignore: Page type is slightly different from DatabaseObjectResponse type, but it should not matter for this use case
-  const character = mapNotionCharacterToChineseCharacter(response);
+  if (!("properties" in response)) {
+    throw new Error("Page is not a database page");
+  }
+
+  const character = mapNotionCharacterToChineseCharacter(
+    response as PageObjectResponse
+  );
 
   return character;
 };
@@ -32,17 +33,17 @@ export const fetchChineseCharactersFromDatabase = async (
     JSON.stringify(filters, null, 2)
   );
 
-  const response = (await notionClient.databases.query({
-    database_id: NOTION_DATABASE_ID,
+  const response = await notionClient.dataSources.query({
+    data_source_id: NOTION_VOCABULARY_DATASOURCE_ID,
     page_size: numberOfCharacters,
     filter: filters,
-  })) as { results: DatabaseObjectResponse[] };
+  });
 
   console.log("Raw fetched characters:", JSON.stringify(response.results));
 
-  const cleanCharacters = response.results.map(
-    mapNotionCharacterToChineseCharacter
-  );
+  const cleanCharacters = response.results
+    .filter(isFullPage)
+    .map(mapNotionCharacterToChineseCharacter);
 
   console.log({
     "Fetched characters": cleanCharacters,
