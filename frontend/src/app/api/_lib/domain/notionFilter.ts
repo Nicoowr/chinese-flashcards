@@ -21,34 +21,6 @@ export const notKnownCharactersFilter = ({
           {
             property: propertiesMappingFromDomainToNotion.lastSeenAt,
             date: {
-              before: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
-            },
-          },
-          {
-            property: propertiesMappingFromDomainToNotion.levelOfConfidence,
-            status: {
-              equals: "✅",
-            },
-          },
-          characterImportance && {
-            property: propertiesMappingFromDomainToNotion.importance,
-            select: {
-              equals: importanceMappingFromDomainToNotion[characterImportance],
-            },
-          },
-          characterType && {
-            property: propertiesMappingFromDomainToNotion.type,
-            multi_select: {
-              contains: typesMappingFromDomainToNotion[characterType],
-            },
-          },
-        ]),
-      },
-      {
-        and: compact([
-          {
-            property: propertiesMappingFromDomainToNotion.lastSeenAt,
-            date: {
               before: dayjs().subtract(3, "day").format("YYYY-MM-DD"),
             },
           },
@@ -75,7 +47,53 @@ export const notKnownCharactersFilter = ({
     ],
   };
 
-  console.log("Filter", filter);
+  console.log("Not known characters filter", filter);
+
+  return filter;
+};
+
+
+export const recentlyKnownCharactersFilter = ({
+  characterType,
+  characterImportance,
+}: {
+  characterType: CharacterType | null;
+  characterImportance: CharacterImportance | null;
+}) => {
+  const filter = {
+    or: [
+      {
+        and: compact([
+          {
+            property: propertiesMappingFromDomainToNotion.lastSeenAt,
+            date: {
+              before: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
+            },
+          },
+          {
+            property: propertiesMappingFromDomainToNotion.levelOfConfidence,
+            status: {
+              equals: "✅",
+            },
+          },
+          characterImportance && {
+            property: propertiesMappingFromDomainToNotion.importance,
+            select: {
+              equals: importanceMappingFromDomainToNotion[characterImportance],
+            },
+          },
+          characterType && {
+            property: propertiesMappingFromDomainToNotion.type,
+            multi_select: {
+              contains: typesMappingFromDomainToNotion[characterType],
+            },
+          },
+        ]),
+      },
+    ],
+  };
+
+  console.log("Recently known characters filter", filter);
 
   return filter;
 };

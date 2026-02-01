@@ -4,6 +4,7 @@ import {
   notKnownCharactersFilter,
   characterNeedsRefresh,
   selectRandomCharacter,
+  recentlyKnownCharactersFilter,
 } from "../_lib/domain/notionFilter";
 import { CharacterType, CharacterImportance } from "../_lib/domain/types";
 
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
       characterType: CharacterType | null;
       characterImportance: CharacterImportance | null;
     };
-    const eligibleCharacters = await fetchChineseCharactersFromDatabase(
+    const unknownCharacters = await fetchChineseCharactersFromDatabase(
       notKnownCharactersFilter({
         characterType,
         characterImportance,
@@ -23,7 +24,21 @@ export async function POST(request: Request) {
       50
     );
 
-    const charactersNeedingRefresh = eligibleCharacters.filter(
+    if (unknownCharacters.length > 0) {
+      const selectedCharacter = selectRandomCharacter(unknownCharacters);
+      return NextResponse.json(selectedCharacter ?? null, { status: 200 });
+    }
+    
+    
+    const recentlyKnownCharacters = await fetchChineseCharactersFromDatabase(
+      recentlyKnownCharactersFilter({
+        characterType,
+        characterImportance,
+      }),
+      50
+    );
+
+    const charactersNeedingRefresh = recentlyKnownCharacters.filter(
       characterNeedsRefresh
     );
 
