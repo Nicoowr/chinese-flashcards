@@ -14,6 +14,7 @@ export const notKnownCharactersFilter = ({
   characterType: CharacterType | null;
   characterImportance: CharacterImportance | null;
 }) => {
+  console.log("Not known characters filter", characterType, characterImportance);
   const filter = {
     or: [
       {
