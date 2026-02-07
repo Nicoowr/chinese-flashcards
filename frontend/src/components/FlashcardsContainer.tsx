@@ -159,7 +159,7 @@ export function FlashcardsContainer() {
 
   return (
     <div className="dark flex flex-col items-center justify-center h-screen bg-background text-card-foreground relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-950/30 via-background to-indigo-950/20 pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-br from-blue-950/30 via-background to-indigo-950/20 pointer-events-none" />
       <div className="absolute top-4 right-4 z-10 glass rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground shadow-lg">
         <span className="text-foreground font-semibold">{uniqueSeenCount}</span>{" "}
         seen

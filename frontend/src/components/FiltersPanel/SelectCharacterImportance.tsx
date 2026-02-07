@@ -33,7 +33,7 @@ export const SelectCharacterImportance = ({
       }
       defaultValue={"high"}
     >
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-full rounded-lg">
         <SelectValue placeholder="Importance" />
       </SelectTrigger>
       <SelectContent>

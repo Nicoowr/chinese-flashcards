@@ -39,7 +39,7 @@ export const CharacterPanelView = ({
           </div>
           {showIdeogram && (
             <div className="flex flex-col items-center mt-4 gap-3">
-              <div className="text-7xl font-bold bg-gradient-to-br from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+              <div className="text-7xl font-bold bg-linear-to-br from-blue-400 to-indigo-400 bg-clip-text text-transparent">
                 {data?.character}
               </div>
               <div className="text-lg text-muted-foreground italic">
