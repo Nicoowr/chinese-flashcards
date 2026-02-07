@@ -9,15 +9,18 @@ export const useAppState = () => {
   );
   const [characterImportance, setCharacterImportance] =
     useState<CharacterImportance | null>("high");
-  const [previousCharacter, setPreviousCharacter] =
-    useState<ChineseCharacter | null>(null);
   const [currentCharacter, setCurrentCharacter] =
     useState<ChineseCharacter | null>(null);
   const [nextCharacter, setNextCharacter] = useState<ChineseCharacter | null>(
     null
   );
   const [seenCharacterIds, setSeenCharacterIds] = useState<string[]>([]);
-  const [knownCount, setKnownCount] = useState<number>(0);
+  const [knownCharacters, setKnownCharacters] = useState<ChineseCharacter[]>(
+    []
+  );
+  const [unknownCharacters, setUnknownCharacters] = useState<
+    ChineseCharacter[]
+  >([]);
 
   const shiftForward = ({
     currentCharacter,
@@ -27,11 +30,9 @@ export const useAppState = () => {
     nextCharacter: ChineseCharacter | null;
   }) => {
     const newState = {
-      previousCharacter: currentCharacter,
       currentCharacter: nextCharacter,
       nextCharacter: null,
     };
-    setPreviousCharacter(newState.previousCharacter);
     setCurrentCharacter(newState.currentCharacter);
     setNextCharacter(newState.nextCharacter);
     if (newState.currentCharacter) {
@@ -42,31 +43,12 @@ export const useAppState = () => {
     return newState;
   };
 
-  const shiftBack = ({
-    previousCharacter,
-    currentCharacter,
-  }: {
-    previousCharacter: ChineseCharacter | null;
-    currentCharacter: ChineseCharacter | null;
-  }) => {
-    const newState = {
-      previousCharacter: null,
-      currentCharacter: previousCharacter,
-      nextCharacter: currentCharacter,
-    };
-    setPreviousCharacter(newState.previousCharacter);
-    setCurrentCharacter(newState.currentCharacter);
-    setNextCharacter(newState.nextCharacter);
-    if (newState.currentCharacter) {
-      setSeenCharacterIds((prev) => {
-        return uniq(compact([...prev, newState.currentCharacter?.id]));
-      });
-    }
-    return newState;
+  const addKnownCharacter = (character: ChineseCharacter) => {
+    setKnownCharacters((prev) => [...prev, character]);
   };
 
-  const incrementKnownCount = () => {
-    setKnownCount((prev) => prev + 1);
+  const addUnknownCharacter = (character: ChineseCharacter) => {
+    setUnknownCharacters((prev) => [...prev, character]);
   };
 
   return {
@@ -76,17 +58,18 @@ export const useAppState = () => {
     setCharacterType,
     characterImportance,
     setCharacterImportance,
-    previousCharacter,
-    setPreviousCharacter,
     currentCharacter,
     setCurrentCharacter,
     nextCharacter,
     setNextCharacter,
     seenCharacterIds,
     setSeenCharacterIds,
-    knownCount,
-    incrementKnownCount,
+    knownCharacters,
+    setKnownCharacters,
+    unknownCharacters,
+    setUnknownCharacters,
+    addKnownCharacter,
+    addUnknownCharacter,
     shiftForward,
-    shiftBack,
   };
 };

@@ -19,7 +19,6 @@ To read more about using these font, please visit the Next.js documentation:
 **/
 "use client";
 
-import { compact } from "lodash-es";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { CharacterPanelView as CharacterPanel } from "./CharacterPanel/CharacterPanel";
@@ -31,19 +30,16 @@ import {
 import { useFetchChineseCharacter } from "./FlashcardsContainer.queries";
 import { useAppState } from "./hooks/useAppState";
 import { useOnConfigurationChange } from "./hooks/useOnConfgiurationChange";
-import { ChineseCharacter } from "./types";
-import { Card } from "./ui/card";
+import { SessionCharacterLists } from "./session-character-lists";
 
 const useKeyboardShortcuts = ({
   handleCheck,
   handleReveal,
   handleUnknown,
-  handleBack,
 }: {
   handleCheck: () => void;
   handleReveal: () => void;
   handleUnknown: () => void;
-  handleBack: () => void;
 }) => {
   useEffect(() => {
     const handleKeyDown = async (event: KeyboardEvent) => {
@@ -57,10 +53,6 @@ const useKeyboardShortcuts = ({
         case "ArrowUp":
           handleReveal();
           break;
-        case "Backspace":
-          event.preventDefault();
-          handleBack();
-          break;
         default:
           break;
       }
@@ -69,7 +61,7 @@ const useKeyboardShortcuts = ({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleCheck, handleReveal, handleUnknown, handleBack]);
+  }, [handleCheck, handleReveal, handleUnknown]);
 };
 
 export function FlashcardsContainer() {
@@ -80,18 +72,19 @@ export function FlashcardsContainer() {
     setCharacterType,
     characterImportance,
     setCharacterImportance,
-    previousCharacter,
-    setPreviousCharacter,
     currentCharacter,
     setCurrentCharacter,
     nextCharacter,
     setNextCharacter,
     seenCharacterIds,
     setSeenCharacterIds,
-    knownCount,
-    incrementKnownCount,
+    knownCharacters,
+    setKnownCharacters,
+    unknownCharacters,
+    setUnknownCharacters,
+    addKnownCharacter,
+    addUnknownCharacter,
     shiftForward,
-    shiftBack,
   } = useAppState();
   const { handleCharacterUnknown } = useSetCharacterUnknown();
   const { handleCharacterKnown } = useSetCharacterKnown();
@@ -105,10 +98,11 @@ export function FlashcardsContainer() {
     characterType,
     characterImportance,
     setShowIdeogram,
-    setPreviousCharacter,
     setCurrentCharacter,
     setNextCharacter,
     setSeenCharacterIds,
+    setKnownCharacters,
+    setUnknownCharacters,
   });
 
   const prefetchNextCharacter = async () => {
@@ -127,11 +121,11 @@ export function FlashcardsContainer() {
       return;
     }
     const oldId = currentCharacter.id;
+    addKnownCharacter(currentCharacter);
     shiftForward({
       currentCharacter,
       nextCharacter,
     });
-    incrementKnownCount();
     await handleCharacterKnown(oldId);
     await prefetchNextCharacter();
   };
@@ -145,6 +139,7 @@ export function FlashcardsContainer() {
       return;
     }
     const oldId = currentCharacter.id;
+    addUnknownCharacter(currentCharacter);
     shiftForward({
       currentCharacter,
       nextCharacter,
@@ -153,32 +148,23 @@ export function FlashcardsContainer() {
     await prefetchNextCharacter();
   };
 
-  const handleBack = () => {
-    if (!previousCharacter) {
-      console.error("No previous character when handling back.");
-      return;
-    }
-    shiftBack({
-      previousCharacter,
-      currentCharacter,
-    });
-  };
   useKeyboardShortcuts({
     handleCheck,
     handleReveal,
     handleUnknown,
-    handleBack,
   });
 
   const isLoading = currentCharacter === null;
   const uniqueSeenCount = seenCharacterIds.length;
 
   return (
-    <div className="dark flex flex-col items-center justify-center h-screen bg-background text-card-foreground">
-      <Card className="absolute top-4 right-4 bg-card px-4 py-2 rounded-lg text-sm font-medium">
-        {uniqueSeenCount}
-      </Card>
-      <div className="flex w-full max-w-5xl">
+    <div className="dark flex flex-col items-center justify-center h-screen bg-background text-card-foreground relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-950/30 via-background to-indigo-950/20 pointer-events-none" />
+      <div className="absolute top-4 right-4 z-10 glass rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground shadow-lg">
+        <span className="text-foreground font-semibold">{uniqueSeenCount}</span>{" "}
+        seen
+      </div>
+      <div className="relative flex w-full max-w-7xl gap-6 px-6">
         <FiltersPanel
           setCharacterType={setCharacterType}
           setCharacterImportance={setCharacterImportance}
@@ -190,10 +176,12 @@ export function FlashcardsContainer() {
           handleCheck={handleCheck}
           handleReveal={handleReveal}
           handleUnknown={handleUnknown}
-          handleBack={handleBack}
-          canGoBack={Boolean(previousCharacter)}
-          knownCount={knownCount}
+          knownCharacters={knownCharacters}
           totalCount={uniqueSeenCount}
+        />
+        <SessionCharacterLists
+          knownCharacters={knownCharacters}
+          unknownCharacters={unknownCharacters}
         />
       </div>
     </div>
