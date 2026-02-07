@@ -49,8 +49,8 @@ export const SessionPieChart = ({
   }, [knownCount, unknownCount]);
 
   return (
-    <div className="w-full flex justify-center my-1">
-      <div className="w-56 h-56">
+    <div className="w-full flex justify-center">
+      <div className="w-44 h-44">
         <ReactECharts
           option={option as any}
           style={{ height: "100%", width: "100%" }}

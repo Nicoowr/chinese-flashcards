@@ -32,7 +32,7 @@ export const SelectCharacterType = ({
         )
       }
     >
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-full rounded-lg">
         <SelectValue placeholder="Type" />
       </SelectTrigger>
       <SelectContent>
