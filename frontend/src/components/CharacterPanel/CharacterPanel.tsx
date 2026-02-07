@@ -11,9 +11,7 @@ export const CharacterPanelView = ({
   handleCheck,
   handleReveal,
   handleUnknown,
-  handleBack,
-  canGoBack,
-  knownCount,
+  knownCharacters,
   totalCount,
 }: {
   data: ChineseCharacter | null;
@@ -22,43 +20,48 @@ export const CharacterPanelView = ({
   handleCheck: () => void | Promise<void>;
   handleReveal: () => void;
   handleUnknown: () => void | Promise<void>;
-  handleBack: () => void | Promise<void>;
-  canGoBack: boolean;
-  knownCount: number;
+  knownCharacters: ChineseCharacter[];
   totalCount: number;
 }) => {
   return (
-    <Card className="w-3/4 p-10 space-y-8 bg-card">
+    <Card className="flex-1 p-10 space-y-8 glass rounded-2xl shadow-2xl shadow-black/20">
       {isLoading ? (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center py-12">
           <Spinner className="animate-spin" />
         </div>
       ) : (
-        <div className="flex flex-col items-center">
-          <div className="flex flex-row items-center gap-4">
-            <h2 className="text-4xl font-bold">{data?.translation}</h2>
-            <div className="text-xl">{`(${data?.type} / ${data?.importance})`}</div>
+        <div className="flex flex-col items-center gap-2">
+          <h2 className="text-4xl font-bold tracking-tight">
+            {data?.translation}
+          </h2>
+          <div className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
+            {data?.type} / {data?.importance}
           </div>
           {showIdeogram && (
-            <>
-              <div className="text-6xl font-bold mt-6">{data?.character}</div>
-              <div className="text-xl mt-6">{data?.example}</div>
-            </>
+            <div className="flex flex-col items-center mt-4 gap-3">
+              <div className="text-7xl font-bold bg-gradient-to-br from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                {data?.character}
+              </div>
+              <div className="text-lg text-muted-foreground italic">
+                {data?.example}
+              </div>
+            </div>
           )}
         </div>
       )}
-      <div className="flex flex-col items-center space-y-2">
+      <div className="flex flex-col items-center space-y-4">
         <ControlButtons
           handleCheck={handleCheck}
           handleReveal={handleReveal}
           handleUnknown={handleUnknown}
-          handleBack={handleBack}
-          canGoBack={canGoBack}
           isLoading={isLoading}
           showIdeogram={showIdeogram}
         />
         <div className="w-full">
-          <SessionPieChart knownCount={knownCount} totalCount={totalCount} />
+          <SessionPieChart
+            knownCount={knownCharacters.length}
+            totalCount={totalCount}
+          />
         </div>
       </div>
     </Card>
