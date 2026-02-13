@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CharacterType, CharacterImportance, ChineseCharacter } from "../types";
 import { compact, uniq } from "lodash-es";
+import { useReviewState } from "./useReviewState";
 
 export const useAppState = () => {
   const [showIdeogram, setShowIdeogram] = useState(false);
@@ -51,6 +52,16 @@ export const useAppState = () => {
     setUnknownCharacters((prev) => [...prev, character]);
   };
 
+  const { isReviewing, startReview, exitReview, recategorizeReviewedCharacter } =
+    useReviewState({
+      currentCharacter,
+      showIdeogram,
+      setCurrentCharacter,
+      setShowIdeogram,
+      setKnownCharacters,
+      setUnknownCharacters,
+    });
+
   return {
     showIdeogram,
     setShowIdeogram,
@@ -71,5 +82,9 @@ export const useAppState = () => {
     addKnownCharacter,
     addUnknownCharacter,
     shiftForward,
+    isReviewing,
+    startReview,
+    exitReview,
+    recategorizeReviewedCharacter,
   };
 };
