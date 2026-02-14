@@ -14,10 +14,12 @@ const CharacterList = ({
   title,
   characters,
   accentColor,
+  onCharacterClick,
 }: {
   title: string;
   characters: ChineseCharacter[];
   accentColor: "green" | "red";
+  onCharacterClick: (character: ChineseCharacter) => void;
 }) => {
   const colorClasses =
     accentColor === "green" ? "text-emerald-400" : "text-red-400";
@@ -32,7 +34,7 @@ const CharacterList = ({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${dotColor}`} />
-          <h3 className={`text-xs font-semibold uppercase tracking-wider ${colorClasses}`}>
+          <h3 className={`text-sm font-semibold uppercase tracking-wider whitespace-nowrap ${colorClasses}`}>
             {title} ({characters.length})
           </h3>
         </div>
@@ -51,11 +53,12 @@ const CharacterList = ({
         {isEmpty ? (
           <p className="text-xs text-muted-foreground/60 italic">None yet</p>
         ) : (
-          <ul className="space-y-0.5 select-all cursor-text">
+          <ul className="space-y-0.5">
             {characters.map((character) => (
               <li
                 key={character.id}
-                className="text-sm leading-relaxed text-foreground/80"
+                className="text-base leading-relaxed text-foreground/80 cursor-pointer rounded px-1 hover:bg-white/10 transition-colors"
+                onClick={() => onCharacterClick(character)}
               >
                 {character.character}
               </li>
@@ -70,21 +73,25 @@ const CharacterList = ({
 export const SessionCharacterLists = ({
   knownCharacters,
   unknownCharacters,
+  onCharacterClick,
 }: {
   knownCharacters: ChineseCharacter[];
   unknownCharacters: ChineseCharacter[];
+  onCharacterClick: (character: ChineseCharacter) => void;
 }) => {
   return (
-    <div className="w-72 shrink-0 flex gap-3 max-h-[80vh] self-start">
+    <div className="w-96 shrink-0 flex gap-3 max-h-[80vh] self-start">
       <CharacterList
         title="Known"
         characters={knownCharacters}
         accentColor="green"
+        onCharacterClick={onCharacterClick}
       />
       <CharacterList
         title="Unknown"
         characters={unknownCharacters}
         accentColor="red"
+        onCharacterClick={onCharacterClick}
       />
     </div>
   );
