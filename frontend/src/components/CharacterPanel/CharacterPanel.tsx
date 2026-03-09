@@ -1,5 +1,5 @@
 import { Spinner } from "@radix-ui/themes";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil, Plus } from "lucide-react";
 import { ChineseCharacter } from "../types";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
@@ -16,6 +16,8 @@ export const CharacterPanelView = ({
   knownCharacters,
   totalCount,
   onBack,
+  onAddCharacter,
+  onEditCharacter,
 }: {
   data: ChineseCharacter | null;
   isLoading: boolean;
@@ -26,6 +28,8 @@ export const CharacterPanelView = ({
   knownCharacters: ChineseCharacter[];
   totalCount: number;
   onBack?: () => void;
+  onAddCharacter: () => void;
+  onEditCharacter: () => void;
 }) => {
   return (
     <Card className="flex-1 p-10 space-y-8 glass rounded-2xl shadow-2xl shadow-black/20 relative">
@@ -40,6 +44,27 @@ export const CharacterPanelView = ({
           Back
         </Button>
       )}
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-white/10 bg-white/5 text-foreground hover:bg-white/10"
+          onClick={onAddCharacter}
+        >
+          <Plus className="mr-1 h-4 w-4" />
+          Add
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground hover:text-foreground transition-colors"
+          disabled={!data || isLoading}
+          onClick={onEditCharacter}
+        >
+          <Pencil className="mr-1 h-4 w-4" />
+          Edit
+        </Button>
+      </div>
       {isLoading ? (
         <div className="flex flex-col items-center py-12">
           <Spinner className="animate-spin" />

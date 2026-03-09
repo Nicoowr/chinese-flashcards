@@ -6,15 +6,28 @@ export const useKeyboardShortcuts = ({
   handleUnknown,
   isReviewing,
   onExitReview,
+  isDisabled = false,
 }: {
   handleCheck: () => void;
   handleReveal: () => void;
   handleUnknown: () => void;
   isReviewing: boolean;
   onExitReview: () => void;
+  isDisabled?: boolean;
 }) => {
   useEffect(() => {
     const handleKeyDown = async (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const isTypingContext =
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.tagName === "SELECT" ||
+        target?.isContentEditable;
+
+      if (isDisabled || isTypingContext) {
+        return;
+      }
+
       if (isReviewing && (event.key === "Escape" || event.key === "Backspace")) {
         event.preventDefault();
         onExitReview();
@@ -38,5 +51,12 @@ export const useKeyboardShortcuts = ({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleCheck, handleReveal, handleUnknown, isReviewing, onExitReview]);
+  }, [
+    handleCheck,
+    handleReveal,
+    handleUnknown,
+    isDisabled,
+    isReviewing,
+    onExitReview,
+  ]);
 };

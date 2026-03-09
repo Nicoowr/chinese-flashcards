@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { setCharacterToUnknown } from "../_lib/domain/setCharacterToUnknown";
+import { setCharacterUnknown } from "../_lib/dependencies/supabase";
 
 export const runtime = "nodejs";
 
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     if (!id) {
       return NextResponse.json({ error: "Missing id" }, { status: 400 });
     }
-    await setCharacterToUnknown(id);
+    await setCharacterUnknown(id);
     return NextResponse.json({ id }, { status: 200 });
   } catch (error) {
     return NextResponse.json(

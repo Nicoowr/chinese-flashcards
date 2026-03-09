@@ -1,17 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import { toast } from "sonner";
+import {
+  CharacterEditorModal,
+  CharacterEditorPayload,
+} from "./CharacterEditorModal";
 import { CharacterPanelView as CharacterPanel } from "./CharacterPanel/CharacterPanel";
 import { FiltersPanel } from "./FiltersPanel/FiltersPanel";
 import {
+  useCreateCharacter,
   useSetCharacterKnown,
   useSetCharacterUnknown,
+  useUpdateCharacter,
 } from "./FlashcardsContainer.mutations";
 import { useFetchChineseCharacter } from "./FlashcardsContainer.queries";
 import { useAppState } from "./hooks/useAppState";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useOnConfigurationChange } from "./hooks/useOnConfgiurationChange";
 import { SessionCharacterLists } from "./session-character-lists";
+import { ChineseCharacter } from "./types";
 
 export function FlashcardsContainer() {
   const {
@@ -39,8 +47,14 @@ export function FlashcardsContainer() {
     exitReview,
     recategorizeReviewedCharacter,
   } = useAppState();
+  const [editorState, setEditorState] = useState<{
+    mode: "create" | "edit";
+    character: ChineseCharacter | null;
+  } | null>(null);
   const { handleCharacterUnknown } = useSetCharacterUnknown();
   const { handleCharacterKnown } = useSetCharacterKnown();
+  const { handleCreateCharacter, isCreateCharacterLoading } = useCreateCharacter();
+  const { handleUpdateCharacter, isUpdateCharacterLoading } = useUpdateCharacter();
   const { fetchCharacter } = useFetchChineseCharacter({
     characterType,
     characterImportance,
@@ -115,16 +129,67 @@ export function FlashcardsContainer() {
     await prefetchNextCharacter();
   };
 
+  const replaceCharacterInList = (
+    characters: ChineseCharacter[],
+    updatedCharacter: ChineseCharacter
+  ) =>
+    characters.map((character) =>
+      character.id === updatedCharacter.id ? updatedCharacter : character
+    );
+
+  const applyCharacterUpdate = (updatedCharacter: ChineseCharacter) => {
+    setCurrentCharacter((previousCharacter) =>
+      previousCharacter?.id === updatedCharacter.id
+        ? updatedCharacter
+        : previousCharacter
+    );
+    setNextCharacter((previousCharacter) =>
+      previousCharacter?.id === updatedCharacter.id
+        ? updatedCharacter
+        : previousCharacter
+    );
+    setKnownCharacters((previousCharacters) =>
+      replaceCharacterInList(previousCharacters, updatedCharacter)
+    );
+    setUnknownCharacters((previousCharacters) =>
+      replaceCharacterInList(previousCharacters, updatedCharacter)
+    );
+  };
+
+  const handleCharacterEditorSubmit = async (payload: CharacterEditorPayload) => {
+    if (editorState?.mode === "edit" && editorState.character) {
+      const updatedCharacter = await handleUpdateCharacter({
+        id: editorState.character.id,
+        ...payload,
+      });
+      applyCharacterUpdate(updatedCharacter);
+      toast.success("Character updated.");
+      setEditorState(null);
+      return;
+    }
+
+    const createdCharacter = await handleCreateCharacter(payload);
+    toast.success("Character created.");
+    if (!currentCharacter) {
+      setCurrentCharacter(createdCharacter);
+      setSeenCharacterIds((previousIds) => [...previousIds, createdCharacter.id]);
+    }
+    setEditorState(null);
+  };
+
   useKeyboardShortcuts({
     handleCheck,
     handleReveal,
     handleUnknown,
     isReviewing,
     onExitReview: exitReview,
+    isDisabled: Boolean(editorState),
   });
 
   const isLoading = currentCharacter === null;
   const uniqueSeenCount = seenCharacterIds.length;
+  const isEditorSubmitting =
+    isCreateCharacterLoading || isUpdateCharacterLoading;
 
   return (
     <div className="dark flex flex-col items-center justify-center h-screen bg-background text-card-foreground relative overflow-hidden">
@@ -148,6 +213,20 @@ export function FlashcardsContainer() {
           knownCharacters={knownCharacters}
           totalCount={uniqueSeenCount}
           onBack={isReviewing ? exitReview : undefined}
+          onAddCharacter={() =>
+            setEditorState({
+              mode: "create",
+              character: null,
+            })
+          }
+          onEditCharacter={() =>
+            currentCharacter
+              ? setEditorState({
+                  mode: "edit",
+                  character: currentCharacter,
+                })
+              : undefined
+          }
         />
         <SessionCharacterLists
           knownCharacters={knownCharacters}
@@ -155,6 +234,18 @@ export function FlashcardsContainer() {
           onCharacterClick={startReview}
         />
       </div>
+      <CharacterEditorModal
+        isOpen={Boolean(editorState)}
+        mode={editorState?.mode ?? "create"}
+        character={editorState?.character ?? null}
+        isSubmitting={isEditorSubmitting}
+        onClose={() => {
+          if (!isEditorSubmitting) {
+            setEditorState(null);
+          }
+        }}
+        onSubmit={handleCharacterEditorSubmit}
+      />
     </div>
   );
 }

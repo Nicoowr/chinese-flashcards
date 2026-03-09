@@ -153,6 +153,6 @@
 ---
 
 ## Future enhancements (optional)
-- Backend batch endpoint (fetch N at once) to further reduce round-trips.
+- Batch API endpoint (fetch N at once) to further reduce round-trips.
 - Queue depth > 2 (e.g., keep 2 next cards) if latency remains noticeable.
 - Extract queue logic and helpers into a small, tested module.

@@ -1,36 +1,52 @@
 # Chinese Flashcards
 
-A flashcard application for learning Chinese characters, integrated with Notion API.
+A flashcard application for learning Chinese characters, now backed by Supabase (Postgres).
 
-## Recent Updates
+## Architecture
 
-### Migration to Notion API v5
+- `frontend` (Next.js App Router):
+  - Study app UI (`/`)
+  - API routes for flashcard logic
+  - In-context create/edit modal on the main flashcard page
 
-The backend has been successfully migrated from Notion API v2 to v5. Key changes include:
+## Database setup (Supabase)
 
-1. **Import paths updated**: The types are now imported directly from `@notionhq/client/build/src/api-endpoints`
-2. **Property type definitions simplified**: In v5, property types are inferred automatically when updating pages
-3. **Type assertions updated**: Using `isFullPage` helper and proper type guards for PageObjectResponse
-4. **API routes migrated**: All API routes now use the App Router structure in Next.js
+1. Create a Supabase project.
+2. Apply SQL migration:
+   - `frontend/supabase/migrations/20260307195000_create_chinese_characters.sql`
+3. Set environment variables in `frontend/.env.local`:
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
 
-### API Endpoints
+## Notion data migration (one-time)
 
-- `POST /api/fetch-chinese-character` - Fetches a random Chinese character based on filters
-- `POST /api/character-known` - Marks a character as known
-- `POST /api/character-unknown` - Marks a character as unknown
+If your data is still in Notion, run:
 
-### Environment Variables
+```bash
+cd frontend
+pnpm migrate:notion-to-supabase
+```
 
-Make sure to set the following environment variable:
-- `NOTION_API_KEY` - Your Notion integration API key
+Required env vars for the migration script:
+- `NOTION_API_KEY`
+- `NOTION_VOCABULARY_DATASOURCE_ID` (or `NOTION_DATABASE_ID`)
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+## API endpoints
+
+- `POST /api/fetch-chinese-character`
+- `POST /api/character-known`
+- `POST /api/character-unknown`
+- `POST /api/admin/characters`
+- `PATCH /api/admin/characters/:id`
+- `DELETE /api/admin/characters/:id`
 
 ### Getting Started
 
 ```bash
-# Install dependencies
 cd frontend
 pnpm install
 
-# Run development server
 pnpm dev
 ```

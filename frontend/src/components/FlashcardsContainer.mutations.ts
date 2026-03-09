@@ -1,13 +1,43 @@
 import { useMutation } from "react-query";
 import { toast } from "sonner";
+import { ChineseCharacter } from "./types";
+
+type CharacterMutationResponse = Omit<ChineseCharacter, "addedAt" | "lastSeenAt"> & {
+  addedAt: string | null;
+  lastSeenAt: string | null;
+};
+
+type CharacterUpsertPayload = {
+  character: string;
+  translation: string | null;
+  example: string | null;
+  addedAt: string | null;
+  type: "verb" | "noun" | "adjective" | "adverb" | "link" | null;
+  importance: "high" | "medium" | "low" | null;
+  lastSeenAt: string | null;
+  numberOfCorrectAnswers: number;
+  levelOfConfidence: "high" | "low";
+};
+
+const buildHeaders = () => ({
+  "Content-Type": "application/json",
+});
+
+const toCharacter = (
+  response: CharacterMutationResponse
+): ChineseCharacter => ({
+  ...response,
+  addedAt: response.addedAt ? new Date(`${response.addedAt}T00:00:00.000Z`) : null,
+  lastSeenAt: response.lastSeenAt
+    ? new Date(`${response.lastSeenAt}T00:00:00.000Z`)
+    : null,
+});
 
 const setCharacterUnknown = async (id: string) => {
   const response = await fetch("/api/character-unknown", {
     method: "POST",
     body: JSON.stringify({ id }),
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: buildHeaders(),
   });
   if (!response.ok) {
     throw new Error("Network response was not ok");
@@ -19,14 +49,43 @@ const setCharacterKnown = async (id: string) => {
   const response = await fetch("/api/character-known", {
     method: "POST",
     body: JSON.stringify({ id }),
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: buildHeaders(),
   });
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }
   return response.json();
+};
+
+const createCharacter = async (
+  payload: CharacterUpsertPayload
+): Promise<ChineseCharacter> => {
+  const response = await fetch("/api/admin/characters", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    headers: buildHeaders(),
+  });
+  if (!response.ok) {
+    const error = (await response.json()) as { error?: string };
+    throw new Error(error.error ?? "Create character failed");
+  }
+  return toCharacter((await response.json()) as CharacterMutationResponse);
+};
+
+const updateCharacter = async ({
+  id,
+  ...payload
+}: CharacterUpsertPayload & { id: string }): Promise<ChineseCharacter> => {
+  const response = await fetch(`/api/admin/characters/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+    headers: buildHeaders(),
+  });
+  if (!response.ok) {
+    const error = (await response.json()) as { error?: string };
+    throw new Error(error.error ?? "Update character failed");
+  }
+  return toCharacter((await response.json()) as CharacterMutationResponse);
 };
 
 export const useSetCharacterUnknown = () => {
@@ -53,4 +112,40 @@ export const useSetCharacterKnown = () => {
     },
   });
   return { handleCharacterKnown, isCharacterKnownLoading };
+};
+
+export const useCreateCharacter = () => {
+  const {
+    mutateAsync: handleCreateCharacter,
+    isLoading: isCreateCharacterLoading,
+  } = useMutation(createCharacter, {
+    onError: (error) => {
+      console.error(error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Create character failed, please try again."
+      );
+    },
+  });
+
+  return { handleCreateCharacter, isCreateCharacterLoading };
+};
+
+export const useUpdateCharacter = () => {
+  const {
+    mutateAsync: handleUpdateCharacter,
+    isLoading: isUpdateCharacterLoading,
+  } = useMutation(updateCharacter, {
+    onError: (error) => {
+      console.error(error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Update character failed, please try again."
+      );
+    },
+  });
+
+  return { handleUpdateCharacter, isUpdateCharacterLoading };
 };

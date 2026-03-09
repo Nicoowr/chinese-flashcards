@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
-import { fetchChineseCharactersFromDatabase } from "../_lib/dependencies/notion";
 import {
-  notKnownCharactersFilter,
+  fetchRecentlyKnownCharacters,
+  fetchUnknownCharacters,
+} from "../_lib/dependencies/supabase";
+import {
   characterNeedsRefresh,
   selectRandomCharacter,
-  recentlyKnownCharactersFilter,
-} from "../_lib/domain/notionFilter";
+} from "../_lib/domain/characterSelection";
 import { CharacterType, CharacterImportance } from "../_lib/domain/types";
 
 export const runtime = "nodejs";
@@ -16,11 +17,11 @@ export async function POST(request: Request) {
       characterType: CharacterType | null;
       characterImportance: CharacterImportance | null;
     };
-    const unknownCharacters = await fetchChineseCharactersFromDatabase(
-      notKnownCharactersFilter({
+    const unknownCharacters = await fetchUnknownCharacters(
+      {
         characterType,
         characterImportance,
-      }),
+      },
       50
     );
 
@@ -28,13 +29,11 @@ export async function POST(request: Request) {
       const selectedCharacter = selectRandomCharacter(unknownCharacters);
       return NextResponse.json(selectedCharacter ?? null, { status: 200 });
     }
-    
-    
-    const recentlyKnownCharacters = await fetchChineseCharactersFromDatabase(
-      recentlyKnownCharactersFilter({
+    const recentlyKnownCharacters = await fetchRecentlyKnownCharacters(
+      {
         characterType,
         characterImportance,
-      }),
+      },
       50
     );
 
