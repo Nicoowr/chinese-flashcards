@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { characterNeedsRefresh } from "../notionFilter";
+import { characterNeedsRefresh } from "../characterSelection";
 import dayjs from "dayjs";
 
 describe("characterNeedsRefresh", () => {

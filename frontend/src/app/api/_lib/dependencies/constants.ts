@@ -1,3 +1,0 @@
-export const NOTION_DATABASE_ID = "e9a17e9f569944f2bbde3bfe0929cddc";
-export const NOTION_VOCABULARY_DATASOURCE_ID =
-  "1e430ea8-7058-48b1-93f7-a42004371ccc";
