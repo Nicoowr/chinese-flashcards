@@ -1,5 +1,6 @@
 "use client";
 
+import { compact, uniq } from "lodash-es";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -96,12 +97,24 @@ export function FlashcardsContainer() {
     setShowIdeogram(false);
     const oldId = currentCharacter.id;
     addKnownCharacter(currentCharacter);
-    shiftForward({
+    const newState = shiftForward({
       currentCharacter,
       nextCharacter,
     });
     await handleCharacterKnown(oldId);
     await prefetchNextCharacter();
+    if (newState.currentCharacter === null) {
+      const fetched = await fetchCharacter();
+      setCurrentCharacter(fetched);
+      if (fetched) {
+        setSeenCharacterIds((prev) =>
+          uniq(compact([...prev, fetched.id]))
+        );
+        await prefetchNextCharacter();
+      } else {
+        toast.error("No more cards available.");
+      }
+    }
   };
   const handleReveal = () => {
     setShowIdeogram((prevState) => !prevState);
@@ -121,12 +134,24 @@ export function FlashcardsContainer() {
     setShowIdeogram(false);
     const oldId = currentCharacter.id;
     addUnknownCharacter(currentCharacter);
-    shiftForward({
+    const newState = shiftForward({
       currentCharacter,
       nextCharacter,
     });
     await handleCharacterUnknown(oldId);
     await prefetchNextCharacter();
+    if (newState.currentCharacter === null) {
+      const fetched = await fetchCharacter();
+      setCurrentCharacter(fetched);
+      if (fetched) {
+        setSeenCharacterIds((prev) =>
+          uniq(compact([...prev, fetched.id]))
+        );
+        await prefetchNextCharacter();
+      } else {
+        toast.error("No more cards available.");
+      }
+    }
   };
 
   const replaceCharacterInList = (
