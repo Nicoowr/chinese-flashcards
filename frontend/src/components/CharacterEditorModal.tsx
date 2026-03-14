@@ -3,15 +3,15 @@
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { CharacterImportance, CharacterType, ChineseCharacter } from "./types";
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
+import { Button } from "../design-system/components/button";
+import { Card } from "../design-system/components/card";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog";
+} from "../design-system/components/dialog";
 
 export type CharacterEditorPayload = {
   character: string;
