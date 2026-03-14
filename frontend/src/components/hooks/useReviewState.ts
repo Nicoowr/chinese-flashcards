@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChineseCharacter } from "../types";
+import { upsertCharacterById } from "../sessionState";
 
 type ReviewSnapshot = {
   previousCharacter: ChineseCharacter;
@@ -52,18 +53,14 @@ export const useReviewState = ({
     if (!currentCharacter || !reviewSnapshot) return currentCharacter;
     const characterId = currentCharacter.id;
     if (targetList === "known") {
-      setKnownCharacters((prev) => [
-        ...prev.filter((c) => c.id !== characterId),
-        currentCharacter,
-      ]);
+      setKnownCharacters((prev) => upsertCharacterById(prev, currentCharacter));
       setUnknownCharacters((prev) =>
         prev.filter((c) => c.id !== characterId)
       );
     } else {
-      setUnknownCharacters((prev) => [
-        ...prev.filter((c) => c.id !== characterId),
-        currentCharacter,
-      ]);
+      setUnknownCharacters((prev) =>
+        upsertCharacterById(prev, currentCharacter)
+      );
       setKnownCharacters((prev) =>
         prev.filter((c) => c.id !== characterId)
       );
