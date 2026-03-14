@@ -3,7 +3,7 @@ import { assertAuthorizedEmail, toAuthErrorResponse } from "../_lib/auth";
 import {
   fetchRecentlyKnownCharacters,
   fetchUnknownCharacters,
-} from "../_lib/dependencies/supabase";
+} from "@/app/api/_lib/dependencies/supabase";
 import {
   characterNeedsRefresh,
   selectRandomCharacter,
