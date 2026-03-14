@@ -1,8 +1,8 @@
 import { Spinner } from "@radix-ui/themes";
 import { ArrowLeft, Pencil, Plus } from "lucide-react";
 import { ChineseCharacter } from "../types";
-import { Card } from "../ui/card";
-import { Button } from "../ui/button";
+import { Card } from "../../design-system/components/card";
+import { Button } from "../../design-system/components/button";
 import { SessionPieChart } from "../SessionPieChart";
 import { ControlButtons } from "./ControlButtons";
 

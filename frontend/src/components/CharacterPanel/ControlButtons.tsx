@@ -1,6 +1,6 @@
-import { Button } from "../ui/button";
-import { CheckIcon } from "../ui/CheckIcon";
-import { XIcon } from "../ui/XIcon";
+import { Button } from "../../design-system/components/button";
+import { CheckIcon } from "../../design-system/components/CheckIcon";
+import { XIcon } from "../../design-system/components/XIcon";
 
 export const ControlButtons = ({
   handleCheck,

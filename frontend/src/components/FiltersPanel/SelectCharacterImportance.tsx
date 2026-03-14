@@ -5,7 +5,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "../../design-system/components/select";
 
 const characterImportanceOptions: {
   value: CharacterImportance | "any";

@@ -2,7 +2,7 @@
 
 import { toast } from "sonner";
 import { ChineseCharacter } from "./types";
-import { Button } from "./ui/button";
+import { Button } from "../design-system/components/button";
 
 const copyCharactersToClipboard = async (characters: ChineseCharacter[]) => {
   const text = characters.map((c) => c.character).join("\n");
