@@ -3,8 +3,7 @@
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { CharacterImportance, CharacterType, ChineseCharacter } from "./types";
-import { Button } from "../design-system/components/button";
-import { Card } from "../design-system/components/card";
+import { Body, Box, Button, Card, HStack, VStack } from "../design-system/components";
 import {
   Dialog,
   DialogContent,
@@ -136,12 +135,12 @@ export const CharacterEditorModal = ({
     >
       <DialogContent className="overflow-hidden border-white/10 bg-slate-900/95 p-0 text-slate-100">
         <Card className="relative w-full overflow-hidden border-0 bg-transparent text-slate-100 shadow-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.22),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.18),_transparent_40%)]" />
+        <Box className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.22),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.18),_transparent_40%)]" />
         <div className="relative border-b border-white/10 px-8 py-7">
           <DialogHeader className="max-w-2xl pr-12">
-              <div className="mb-3 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
+              <Body className="mb-3 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
                 {mode === "create" ? "Add Character" : "Edit Current Card"}
-              </div>
+              </Body>
               <DialogTitle>
                 {mode === "create"
                   ? "Create a new study card"
@@ -154,7 +153,7 @@ export const CharacterEditorModal = ({
         </div>
 
         <form className="relative grid gap-6 px-8 py-7 lg:grid-cols-[1.25fr_0.9fr]" onSubmit={submit}>
-          <div className="space-y-5">
+          <VStack gap={20}>
             <label className="block text-sm font-medium text-slate-200">
               Character
               <input
@@ -200,9 +199,9 @@ export const CharacterEditorModal = ({
                 placeholder="Example sentence or mnemonic"
               />
             </label>
-          </div>
+          </VStack>
 
-          <div className="space-y-5">
+          <VStack gap={20}>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block text-sm font-medium text-slate-200">
                 Type
@@ -254,15 +253,15 @@ export const CharacterEditorModal = ({
                 </select>
               </label>
             </div>
-          </div>
+          </VStack>
 
-          <div className="lg:col-span-2 flex items-center justify-between border-t border-white/10 pt-2">
-            <p className="text-sm text-slate-400">
+          <HStack className="lg:col-span-2 border-t border-white/10 pt-2" alignItems="center" justifyContent="space-between">
+            <Body as="p" className="text-sm text-slate-400">
               {mode === "create"
                 ? "New cards are created with today's dates and high importance by default."
                 : "Saving updates the current card instantly in the session."}
-            </p>
-            <div className="flex items-center gap-3">
+            </Body>
+            <HStack alignItems="center" gap={12}>
               <Button
                 type="button"
                 variant="ghost"
@@ -283,8 +282,8 @@ export const CharacterEditorModal = ({
                     ? "Create Character"
                     : "Update Character"}
               </Button>
-            </div>
-          </div>
+            </HStack>
+          </HStack>
         </form>
         </Card>
       </DialogContent>

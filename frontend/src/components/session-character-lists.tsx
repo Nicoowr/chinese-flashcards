@@ -1,8 +1,14 @@
 "use client";
 
 import { toast } from "sonner";
+import {
+  Body,
+  Box,
+  Button,
+  HStack,
+  VStack,
+} from "../design-system/components";
 import { ChineseCharacter } from "./types";
-import { Button } from "../design-system/components/button";
 
 const copyCharactersToClipboard = async (characters: ChineseCharacter[]) => {
   const text = characters.map((c) => c.character).join("\n");
@@ -24,20 +30,19 @@ const CharacterList = ({
   const colorClasses =
     accentColor === "green" ? "text-emerald-400" : "text-red-400";
 
-  const dotColor =
-    accentColor === "green" ? "bg-emerald-400" : "bg-red-400";
+  const dotColor = accentColor === "green" ? "bg-emerald-400" : "bg-red-400";
 
   const isEmpty = characters.length === 0;
 
   return (
-    <div className="flex flex-col min-h-0 flex-1">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${dotColor}`} />
-          <h3 className={`text-sm font-semibold uppercase tracking-wider whitespace-nowrap ${colorClasses}`}>
+    <VStack className="min-h-0 flex-1">
+      <HStack className="mb-2" justifyContent="space-between" alignItems="center">
+        <HStack alignItems="center" gap={8}>
+          <Box className={`w-2 h-2 rounded-full ${dotColor}`} />
+          <Body as="h3" className={`text-sm font-semibold uppercase tracking-wider whitespace-nowrap ${colorClasses}`}>
             {title} ({characters.length})
-          </h3>
-        </div>
+          </Body>
+        </HStack>
         {!isEmpty && (
           <Button
             variant="ghost"
@@ -48,25 +53,28 @@ const CharacterList = ({
             Copy
           </Button>
         )}
-      </div>
-      <div className="flex-1 overflow-y-auto rounded-lg glass p-2.5">
+      </HStack>
+      <Box className="flex-1 overflow-y-auto rounded-lg glass p-2.5">
         {isEmpty ? (
-          <p className="text-xs text-muted-foreground/60 italic">None yet</p>
+          <Body as="p" className="text-xs text-muted-foreground/60 italic">
+            None yet
+          </Body>
         ) : (
-          <ul className="space-y-0.5">
+          <VStack as="ul" className="space-y-0.5">
             {characters.map((character) => (
-              <li
+              <Body
+                as="li"
                 key={character.id}
                 className="text-base leading-relaxed text-foreground/80 cursor-pointer rounded px-1 hover:bg-white/10 transition-colors"
                 onClick={() => onCharacterClick(character)}
               >
                 {character.character}
-              </li>
+              </Body>
             ))}
-          </ul>
+          </VStack>
         )}
-      </div>
-    </div>
+      </Box>
+    </VStack>
   );
 };
 
@@ -80,7 +88,7 @@ export const SessionCharacterLists = ({
   onCharacterClick: (character: ChineseCharacter) => void;
 }) => {
   return (
-    <div className="w-96 shrink-0 flex gap-3 max-h-[80vh] self-start">
+    <HStack className="w-96 shrink-0 max-h-[80vh] self-start" gap={12}>
       <CharacterList
         title="Known"
         characters={knownCharacters}
@@ -93,6 +101,6 @@ export const SessionCharacterLists = ({
         accentColor="red"
         onCharacterClick={onCharacterClick}
       />
-    </div>
+    </HStack>
   );
 };

@@ -1,3 +1,4 @@
+import { Body, VStack } from "../../design-system/components";
 import { CharacterImportance, CharacterType } from "../types";
 import { SelectCharacterImportance } from "./SelectCharacterImportance";
 import { SelectCharacterType } from "./SelectCharacterType";
@@ -10,22 +11,26 @@ export const FiltersPanel = ({
   setCharacterImportance: (importance: CharacterImportance | null) => void;
 }) => {
   return (
-    <div className="flex flex-col gap-4 w-48 shrink-0 self-start">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <VStack className="w-48 shrink-0 self-start" gap={16}>
+      <Body as="h3" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         Filters
-      </h3>
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-muted-foreground">Type</label>
+      </Body>
+      <VStack gap={12}>
+        <VStack gap={6}>
+          <Body as="label" className="text-xs text-muted-foreground">
+            Type
+          </Body>
           <SelectCharacterType handleCharacterTypeChange={setCharacterType} />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-muted-foreground">Importance</label>
+        </VStack>
+        <VStack gap={6}>
+          <Body as="label" className="text-xs text-muted-foreground">
+            Importance
+          </Body>
           <SelectCharacterImportance
             handleCharacterImportanceChange={setCharacterImportance}
           />
-        </div>
-      </div>
-    </div>
+        </VStack>
+      </VStack>
+    </VStack>
   );
 };

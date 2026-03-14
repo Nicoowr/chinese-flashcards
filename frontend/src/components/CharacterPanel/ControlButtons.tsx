@@ -1,6 +1,9 @@
-import { Button } from "../../design-system/components/button";
-import { CheckIcon } from "../../design-system/components/CheckIcon";
-import { XIcon } from "../../design-system/components/XIcon";
+import {
+  Button,
+  CheckIcon,
+  HStack,
+  XIcon,
+} from "../../design-system/components";
 
 export const ControlButtons = ({
   handleCheck,
@@ -16,7 +19,7 @@ export const ControlButtons = ({
   showIdeogram: boolean;
 }) => {
   return (
-    <div className="flex justify-center gap-4">
+    <HStack justifyContent="center" gap={16}>
       <Button
         disabled={isLoading}
         onClick={handleCheck}
@@ -40,6 +43,6 @@ export const ControlButtons = ({
         <XIcon className="h-5 w-5" />
         Unknown
       </Button>
-    </div>
+    </HStack>
   );
 };
