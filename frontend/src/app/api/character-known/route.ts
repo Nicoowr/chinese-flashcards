@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { assertAuthorizedEmail, toAuthErrorResponse } from "../_lib/auth";
-import { setCharacterKnown } from "../_lib/dependencies/supabase";
+import { setCharacterKnown } from "@/app/api/_lib/dependencies/supabase";
 
 export const runtime = "nodejs";
 
