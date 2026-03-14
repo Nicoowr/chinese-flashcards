@@ -1,6 +1,7 @@
 import { useQuery } from "react-query";
 import { CharacterImportance, CharacterType, ChineseCharacter } from "./types";
 import { toast } from "sonner";
+import { authenticatedApiFetch } from "../lib/supabaseClient";
 
 const fetchChineseCharacter = async ({
   characterType,
@@ -9,12 +10,9 @@ const fetchChineseCharacter = async ({
   characterType: CharacterType | null;
   characterImportance: CharacterImportance | null;
 }) => {
-  const response = await fetch("/api/fetch-chinese-character", {
+  const response = await authenticatedApiFetch("/api/fetch-chinese-character", {
     method: "POST",
     body: JSON.stringify({ characterType, characterImportance }),
-    headers: {
-      "Content-Type": "application/json",
-    },
   });
   if (!response.ok) {
     throw new Error("Network response was not ok");

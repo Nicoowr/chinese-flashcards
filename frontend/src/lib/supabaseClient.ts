@@ -119,6 +119,36 @@ export const refreshSession = async (refreshToken: string) => {
   return data;
 };
 
+export const getActiveSession = async (): Promise<AuthSession> => {
+  const session = getStoredSession();
+  if (!session) {
+    throw new Error("Not authenticated");
+  }
+
+  const expiresAt = session.expires_at ?? 0;
+  const shouldRefresh = expiresAt > 0 && Date.now() > expiresAt - 30_000;
+
+  return shouldRefresh ? refreshSession(session.refresh_token) : session;
+};
+
+export const authenticatedApiFetch = async (
+  input: RequestInfo | URL,
+  init: RequestInit = {}
+) => {
+  const session = await getActiveSession();
+  const headers = new Headers(init.headers);
+
+  headers.set("Authorization", `Bearer ${session.access_token}`);
+  if (init.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  return fetch(input, {
+    ...init,
+    headers,
+  });
+};
+
 export const getCurrentUser = async (accessToken: string) => {
   const { url, anonKey } = getSupabaseCredentials();
   const response = await fetch(`${url}/auth/v1/user`, {

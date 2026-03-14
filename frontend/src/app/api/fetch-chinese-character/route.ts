@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { assertAuthorizedEmail, toAuthErrorResponse } from "../_lib/auth";
 import {
   fetchRecentlyKnownCharacters,
   fetchUnknownCharacters,
@@ -13,6 +14,8 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
+    await assertAuthorizedEmail(request);
+
     const { characterType, characterImportance } = (await request.json()) as {
       characterType: CharacterType | null;
       characterImportance: CharacterImportance | null;
@@ -45,6 +48,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json(selectedCharacter ?? null, { status: 200 });
   } catch (error) {
+    const authErrorResponse = toAuthErrorResponse(error);
+    if (authErrorResponse) {
+      return authErrorResponse;
+    }
+
     return NextResponse.json(
       { error: "Failed to fetch character" },
       { status: 500 }
