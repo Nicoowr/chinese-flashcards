@@ -223,7 +223,7 @@ export const CharacterEditorModal = ({
                 className="rounded-xl bg-white/10 px-5 text-slate-100 hover:bg-white/15"
               >
                 {isGenerating ? (
-                  <Loader className="mr-2 size-4 shrink-0 text-slate-100 [&_circle]:stroke-slate-100" />
+                  <Loader className="mr-2 text-slate-100" />
                 ) : (
                   <span className="mr-2 shrink-0" aria-hidden>✨</span>
                 )}
