@@ -6,7 +6,9 @@
   "scripts": {
     "test": "cd frontend && pnpm run test",
     "type-check": "cd frontend && pnpm run type-check",
-    "lint": "cd frontend && pnpm run lint"
+    "lint": "cd frontend && pnpm run lint",
+    "sync:ai-rules": "tsx scripts/sync-ai-rules.ts",
+    "check:ai-rules": "tsx scripts/sync-ai-rules.ts --check"
   },
   "keywords": [],
   "author": "",

@@ -1,0 +1,274 @@
+# AI Core Rules
+
+This file is the canonical source for shared AI coding and review rules.
+Generated files (`CLAUDE.md` and `.cursor/rules/*.mdc`) are derived from marker blocks below.
+
+<!-- BEGIN:shared.coding-standards -->
+# Coding Standards
+
+## Functions
+- Use arrow functions, not function declarations
+- When a function has more than 2 parameters, or 2 parameters with the same type, use an object parameter instead
+- Avoid using IIFE (Immediately Invoked Function Expressions)
+- Prefer extracting logic into multiple single-responsibility functions
+- Define called functions before the functions that call them (callee-first ordering)
+
+```typescript
+// BAD
+function getData() {
+  return null;
+}
+
+// GOOD
+const getData = () => {
+  return null;
+};
+```
+
+```typescript
+// BAD
+const validateRange = (min: number, max: number) => min <= max;
+
+// GOOD
+type ValidateRangeParams = {
+  min: number;
+  max: number;
+};
+
+const validateRange = ({ min, max }: ValidateRangeParams) => min <= max;
+```
+
+```typescript
+// BAD - caller before callee
+const handleSubmit = (data: FormData) => {
+  if (!validate(data)) return;
+  const user = buildUser(data);
+  save(user);
+};
+
+const validate = (data: FormData) => data.email.includes("@");
+const buildUser = (data: FormData) => ({ ...data, id: "id" });
+
+// GOOD - callee first
+const validate = (data: FormData) => data.email.includes("@");
+const buildUser = (data: FormData) => ({ ...data, id: "id" });
+
+const handleSubmit = (data: FormData) => {
+  if (!validate(data)) return;
+  const user = buildUser(data);
+  save(user);
+};
+```
+
+## Readability
+- Favor guard clauses and early returns over nested conditionals
+- Avoid complex inline callbacks; extract named handlers for multi-step behavior
+- Do not use nested ternaries
+
+## Functional Style
+- Do not use `for` loops
+- Do not use `let` declarations
+- Do not use `.forEach()` or `.push()`
+- Use `.map()`, `.filter()`, `.flatMap()`, `.every()`, `.some()`
+- Do not use `.reduce()`
+- `.map()` callbacks must be pure and side-effect free
+- Do not mutate external state inside `.map()` callbacks
+
+```typescript
+// BAD
+let result = [];
+for (const item of items) {
+  result.push(transform(item));
+}
+
+// GOOD
+const result = items.map(transform);
+```
+
+```typescript
+// BAD
+const output: string[] = [];
+items.forEach((item) => {
+  if (item.isValid) output.push(item.name);
+});
+
+// GOOD
+const output = items.filter((item) => item.isValid).map((item) => item.name);
+```
+
+```typescript
+// BAD
+const cache: Record<string, Item> = {};
+const transformed = items.map((item) => {
+  cache[item.id] = item; // side effect
+  return normalize(item);
+});
+
+// GOOD
+const transformed = items.map(normalize);
+```
+
+## TypeScript
+- Use `type` instead of `interface`
+- Do not use optional properties (`?`); use explicit `| null` where needed
+- Do not use optional function parameters (`param?: T`); use explicit `T | null`
+- Use `isDefined` / `isNotDefined` from `@/lib/utils` for null checks
+
+## Date and Time
+- Use `@retrocast/shared/dayjs` for all Dayjs date operations in frontend and backend code
+- Do not import `dayjs` directly in app code
+- Do not create app-local Dayjs wrappers; keep configuration in the shared package only
+
+```typescript
+// BAD
+interface User {
+  name: string;
+}
+
+// GOOD
+type User = {
+  name: string;
+};
+```
+
+```typescript
+// BAD
+type Props = {
+  datasetId?: string;
+};
+
+// GOOD
+type Props = {
+  datasetId: string | null;
+};
+```
+
+```typescript
+// BAD
+const loadDataset = (datasetId?: string) => fetchDataset(datasetId);
+
+// GOOD
+type LoadDatasetParams = {
+  datasetId: string | null;
+};
+
+const loadDataset = ({ datasetId }: LoadDatasetParams) => fetchDataset(datasetId);
+```
+
+```typescript
+import { isDefined, isNotDefined } from "@/lib/utils";
+
+// BAD
+if (!user) return null;
+const filtered = items.filter((item) => item.value);
+
+// GOOD
+if (isNotDefined(user)) return null;
+const filtered = items.filter((item) => isDefined(item.value));
+```
+
+## Architecture and Files
+- Do not create `index.ts` barrel files
+- React component files must use kebab-case names
+- Keep functions and components focused on one responsibility
+- When splitting very large functions, create a folder named after the top-level function and separate helpers into dedicated files
+- Do not create pass-through files that only `export * from ...` during refactors unless explicitly requested for temporary compatibility
+- Ensure a single source-of-truth implementation path after refactors (no duplicate implementation + alias wrapper pairs)
+- For complex backend route refactors, prefer bounded contexts with `<route>.ts` (thin pass-through), `api/` (outside-facing route/schema), `dependencies/` (IO/integrations), and `domain/` (business logic/workflows)
+
+## Responsibility Boundaries
+- Assign each concern to one owner layer and keep that ownership stable
+- If an adapter/route already normalizes or validates data, downstream builders/services must consume that contract and avoid re-normalizing
+- Do not duplicate defensive checks across layers unless there is a proven independent caller that requires local validation
+
+```typescript
+// BAD - duplicate cleaning in adapter + builder
+const metadataColumns = cleanMetadataColumns(rawInput);
+buildQuery({ metadataColumns }); // buildQuery cleans metadataColumns again
+
+// GOOD - single owner of normalization
+const metadataColumns = cleanMetadataColumns(rawInput);
+buildQuery({ metadataColumns }); // buildQuery consumes trusted normalized input
+```
+
+## Data Fetching
+- Use TanStack Query for server-state management
+- Use `useQuery` for fetching and `useMutation` for writes
+- Avoid manual async request state management with ad-hoc `useState` + `try/catch` patterns
+
+```typescript
+// BAD
+const [data, setData] = useState(null);
+const [isLoading, setIsLoading] = useState(false);
+
+const fetchData = async () => {
+  setIsLoading(true);
+  try {
+    setData(await apiCall());
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+// GOOD
+const { data, isLoading } = useQuery({
+  queryKey: ["resource", id],
+  queryFn: () => apiCall(id),
+});
+```
+
+## Testing and Workflows
+- Screenshots should be saved in `.screenshots/`
+- Use conventional commit prefixes: `feat:`, `fix:`, `refactor:`, `chore:`, `docs:`, `test:`, `ci:`, `perf:`, `style:`
+
+## Final Self-Check
+1. No optional function parameters (`?:`) are introduced.
+2. No side effects exist inside `.map()` callbacks.
+3. No `for`, `.forEach()`, `.reduce()`, `let`, or nested ternaries are introduced.
+<!-- END:shared.coding-standards -->
+
+<!-- BEGIN:shared.design-system -->
+# Design System Usage
+
+Always use design system components from `src/components/ui/` instead of raw HTML or custom primitives.
+
+## Component Families
+- Typography: `Heading`, `Body`
+- Layout: `Stack`, `Card`, `Divider`
+- Inputs: `Button`, `Input`, `InputWithLabel`, `Select`, `Switch`, `RadioGroup`, `Label`
+- Feedback: `Alert`, `Tooltip`, `Spinner`, `TfcSpinner`, `LoadingIndicator`, `Badge`
+- Overlays: `Dialog`, `Sheet`, `Drawer`, `Popover`, `HoverCard`
+- Navigation: `DropdownMenu`, `ContextMenu`, `Command`
+- Data Display: `Table`, `Accordion`
+
+```tsx
+// BAD
+<h1 className="text-2xl font-bold">Title</h1>
+<button className="px-4 py-2">Click</button>
+
+// GOOD
+import { Heading } from "@/components/ui/heading";
+import { Button } from "@/components/ui/button";
+
+<Heading level={1}>Title</Heading>
+<Button>Click</Button>
+```
+<!-- END:shared.design-system -->
+
+<!-- BEGIN:shared.request-relevance -->
+# Request Relevance Check
+
+Scope: This rule is intended for non-Claude models only. Claude models should ignore this rule.
+
+Before executing a request, explicitly analyze whether the task is relevant to:
+- The user's stated goal in the current message
+- The active repository/workspace context
+- Existing project rules and constraints
+
+If relevance is unclear, ask a concise clarifying question before making changes.
+
+## Quick Relevance Process
+1. Restate the user's goal in one sentence.
+2. Confirm the files/tools/actions directly support that goal.
+3. Avoid unrelated edits, exploration, or assumptions.
+<!-- END:shared.request-relevance -->

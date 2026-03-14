@@ -24,7 +24,8 @@ Before creating any mockup, check if a **project design system reference** exist
 ### Step 2: Create the mockups
 
 1. Create a `.design-proposals/` directory at the project root (add it to `.gitignore` if not already present, along with `.screenshots/`).
-2. For each proposal, create a self-contained HTML file:
+2. Inside `.design-proposals/`, create a subfolder named after the feature or topic being explored (e.g., `.design-proposals/onboarding-flow/`, `.design-proposals/settings-page/`). All mockup files for that exploration go inside this subfolder.
+3. For each proposal, create a self-contained HTML file:
    - Name files descriptively: `option-a-<short-label>.html`, `option-b-<short-label>.html`, etc.
    - Use **Tailwind CDN** (`<script src="https://cdn.tailwindcss.com"></script>`) for utility classes.
    - Import the same font the project uses (e.g., Google Fonts link).
@@ -33,6 +34,52 @@ Before creating any mockup, check if a **project design system reference** exist
    - Add a **colored annotation banner** fixed at the top of each page, briefly describing the design direction (use a distinct color per option so they're easy to tell apart).
    - Populate with realistic placeholder content relevant to the feature.
 
+### JavaScript Interactivity (required)
+
+Mockups must be interactive, not static screenshots. Every proposal should include meaningful vanilla JavaScript behavior that simulates real user flows.
+
+Minimum requirement per option: implement at least **3 dynamic interactions**, including at least **1 navigation/state transition** (for example, moving between screens or changing tabs).
+
+Recommended interactions:
+
+- **Multi-screen flows**: Define each screen as a `<section data-screen="screen-name">` with only one visible at a time. Use `showScreen(name)` to toggle visibility.
+- **Modals & drawers**: Toggle overlays with `hidden` class changes.
+- **Tabs & accordions**: Switch active content panes and section expansion.
+- **Form simulation**: Validate required fields, show inline errors, and enable/disable primary CTA based on form state.
+- **Dynamic filtering/search**: Filter cards/list rows in memory using typed input, select chips, or status toggles.
+- **Progressive disclosure**: Reveal advanced settings only after a trigger.
+
+Implementation guidance:
+
+- Keep JS inline in a single `<script>` block at the bottom of the file.
+- Use a tiny state object + render helpers rather than many one-off DOM mutations.
+- Prefer declarative data attributes (`data-action`, `data-screen`, `data-modal`) and event delegation for click handlers.
+- No frameworks, no bundlers, no external JS dependencies.
+
+```html
+<!-- Example: tiny state + render pattern -->
+<script>
+  const state = { screen: "intro", query: "" };
+
+  const showScreen = (name) => {
+    state.screen = name;
+    document.querySelectorAll("[data-screen]").forEach((el) => {
+      el.classList.toggle("hidden", el.dataset.screen !== state.screen);
+    });
+  };
+
+  const bindActions = () => {
+    document.addEventListener("click", (event) => {
+      const trigger = event.target.closest("[data-action='next']");
+      if (trigger) showScreen(trigger.dataset.target);
+    });
+  };
+
+  bindActions();
+  showScreen(state.screen);
+</script>
+```
+
 ### Step 3: Present the mockups
 
 1. Start a local HTTP server in `.design-proposals/`:
@@ -40,10 +87,11 @@ Before creating any mockup, check if a **project design system reference** exist
    python3 -m http.server 8899
    ```
    Run it in the background (block_until_ms: 0, full_network permission).
-2. Open each mockup in the Cursor built-in browser at `http://localhost:8899/<filename>.html`.
+2. Open each mockup in the Cursor built-in browser at `http://localhost:8899/<subfolder>/<filename>.html`.
 3. Resize the browser to **1440×900** before taking screenshots.
-4. Take a screenshot of each option.
-5. After all screenshots, provide a structured comparison:
+4. Validate every JavaScript interaction once before capture (click through full flow, open/close overlays, verify toggles).
+5. Take a screenshot of each option.
+6. After all screenshots, provide a structured comparison:
    - For each option: a short description, **best for**, and **trade-off**.
    - Ask the user which direction they prefer, or if they want to mix elements.
 
@@ -85,3 +133,4 @@ Keep the reference concise (under 150 lines). It's a cheat sheet, not full docum
 - Each option should represent a **fundamentally different UX approach** (e.g., side panel vs. full page vs. drawer), not just color or spacing variations.
 - Keep mockups focused on layout, information hierarchy, and interaction flow — pixel-perfect polish is not the goal at this stage.
 - Use an opaque (not glass/transparent) background on the drawer/panel containers if the page background is dark — semi-transparent glass is invisible against matching dark backgrounds in standalone mockups.
+- Do not ship static-only mockups: every option must include JavaScript-powered interactions that demonstrate behavior, not just appearance.
