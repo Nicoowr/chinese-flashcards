@@ -4,9 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "cd frontend && pnpm run test",
-    "type-check": "cd frontend && pnpm run type-check",
-    "lint": "cd frontend && pnpm run lint",
+    "test": "pnpm --filter frontend run test",
+    "type-check": "pnpm --filter frontend run type-check",
+    "lint": "pnpm exec eslint frontend",
+    "dev": "pnpm --filter frontend run dev",
+    "build": "pnpm --filter frontend run build",
+    "start": "pnpm --filter frontend run start",
     "sync:ai-rules": "tsx scripts/sync-ai-rules.ts",
     "check:ai-rules": "tsx scripts/sync-ai-rules.ts --check"
   },
@@ -15,8 +18,8 @@
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.35.0",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.5",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^16.4.0",
