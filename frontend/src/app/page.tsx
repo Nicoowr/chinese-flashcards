@@ -8,10 +8,9 @@ import { FlashcardsContainer } from "../components/FlashcardsContainer";
 import { LoginPage } from "../components/LoginPage";
 import {
   type AuthenticatedUser,
+  getActiveSession,
   getCurrentUser,
-  getStoredSession,
   hydrateSessionFromUrl,
-  refreshSession,
   signOut,
 } from "../lib/supabaseClient";
 
@@ -25,16 +24,7 @@ export default function Home() {
     try {
       hydrateSessionFromUrl();
 
-      const session = getStoredSession();
-      if (!session) {
-        setAuthenticatedUser(null);
-        return;
-      }
-
-      const expiresAt = session.expires_at ?? 0;
-      const hasExpired = expiresAt > 0 && Date.now() > expiresAt - 30_000;
-      const activeSession = hasExpired ? await refreshSession(session.refresh_token) : session;
-
+      const activeSession = await getActiveSession();
       const user = await getCurrentUser(activeSession.access_token);
       setAuthenticatedUser(user);
     } catch {

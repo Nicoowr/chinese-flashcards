@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { assertAuthorizedEmail, toAuthErrorResponse } from "../../_lib/auth";
 import {
   CHARACTER_CONFIDENCE,
   CHARACTER_IMPORTANCE,
@@ -97,11 +98,18 @@ const parseCreateInput = (payload: unknown): CreateCharacterInput => {
 
 export async function GET(request: Request) {
   try {
+    await assertAuthorizedEmail(request);
+
     const url = new URL(request.url);
     const limit = Number(url.searchParams.get("limit") ?? 500);
     const characters = await listAdminCharacters(Number.isNaN(limit) ? 500 : limit);
     return NextResponse.json(characters, { status: 200 });
   } catch (error) {
+    const authErrorResponse = toAuthErrorResponse(error);
+    if (authErrorResponse) {
+      return authErrorResponse;
+    }
+
     return NextResponse.json(
       { error: "Failed to fetch admin character list" },
       { status: 500 }
@@ -111,11 +119,18 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    await assertAuthorizedEmail(request);
+
     const payload = (await request.json()) as unknown;
     const parsed = parseCreateInput(payload);
     const created = await createCharacter(parsed);
     return NextResponse.json(created, { status: 201 });
   } catch (error) {
+    const authErrorResponse = toAuthErrorResponse(error);
+    if (authErrorResponse) {
+      return authErrorResponse;
+    }
+
     const message = error instanceof Error ? error.message : "Invalid request";
     return NextResponse.json({ error: message }, { status: 400 });
   }

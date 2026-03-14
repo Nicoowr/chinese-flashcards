@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { assertAuthorizedEmail, toAuthErrorResponse } from "../../../_lib/auth";
 import {
   CHARACTER_CONFIDENCE,
   CHARACTER_IMPORTANCE,
@@ -110,11 +111,18 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    await assertAuthorizedEmail(request);
+
     const payload = (await request.json()) as unknown;
     const parsed = parseUpdateInput(payload);
     const updated = await updateCharacter(params.id, parsed);
     return NextResponse.json(updated, { status: 200 });
   } catch (error) {
+    const authErrorResponse = toAuthErrorResponse(error);
+    if (authErrorResponse) {
+      return authErrorResponse;
+    }
+
     const message = error instanceof Error ? error.message : "Invalid request";
     return NextResponse.json({ error: message }, { status: 400 });
   }
@@ -125,9 +133,16 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    await assertAuthorizedEmail(request);
+
     await deleteCharacter(params.id);
     return NextResponse.json({ id: params.id }, { status: 200 });
   } catch (error) {
+    const authErrorResponse = toAuthErrorResponse(error);
+    if (authErrorResponse) {
+      return authErrorResponse;
+    }
+
     return NextResponse.json(
       { error: "Failed to delete character" },
       { status: 500 }

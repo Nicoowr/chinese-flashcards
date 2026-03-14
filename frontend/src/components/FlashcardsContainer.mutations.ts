@@ -1,5 +1,6 @@
 import { useMutation } from "react-query";
 import { toast } from "sonner";
+import { authenticatedApiFetch } from "../lib/supabaseClient";
 import { ChineseCharacter } from "./types";
 
 type CharacterMutationResponse = Omit<ChineseCharacter, "addedAt" | "lastSeenAt"> & {
@@ -19,10 +20,6 @@ type CharacterUpsertPayload = {
   levelOfConfidence: "high" | "low";
 };
 
-const buildHeaders = () => ({
-  "Content-Type": "application/json",
-});
-
 const toCharacter = (
   response: CharacterMutationResponse
 ): ChineseCharacter => ({
@@ -34,10 +31,9 @@ const toCharacter = (
 });
 
 const setCharacterUnknown = async (id: string) => {
-  const response = await fetch("/api/character-unknown", {
+  const response = await authenticatedApiFetch("/api/character-unknown", {
     method: "POST",
     body: JSON.stringify({ id }),
-    headers: buildHeaders(),
   });
   if (!response.ok) {
     throw new Error("Network response was not ok");
@@ -46,10 +42,9 @@ const setCharacterUnknown = async (id: string) => {
 };
 
 const setCharacterKnown = async (id: string) => {
-  const response = await fetch("/api/character-known", {
+  const response = await authenticatedApiFetch("/api/character-known", {
     method: "POST",
     body: JSON.stringify({ id }),
-    headers: buildHeaders(),
   });
   if (!response.ok) {
     throw new Error("Network response was not ok");
@@ -60,10 +55,9 @@ const setCharacterKnown = async (id: string) => {
 const createCharacter = async (
   payload: CharacterUpsertPayload
 ): Promise<ChineseCharacter> => {
-  const response = await fetch("/api/admin/characters", {
+  const response = await authenticatedApiFetch("/api/admin/characters", {
     method: "POST",
     body: JSON.stringify(payload),
-    headers: buildHeaders(),
   });
   if (!response.ok) {
     const error = (await response.json()) as { error?: string };
@@ -76,10 +70,9 @@ const updateCharacter = async ({
   id,
   ...payload
 }: CharacterUpsertPayload & { id: string }): Promise<ChineseCharacter> => {
-  const response = await fetch(`/api/admin/characters/${id}`, {
+  const response = await authenticatedApiFetch(`/api/admin/characters/${id}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
-    headers: buildHeaders(),
   });
   if (!response.ok) {
     const error = (await response.json()) as { error?: string };
