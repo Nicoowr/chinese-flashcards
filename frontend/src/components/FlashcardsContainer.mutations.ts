@@ -20,6 +20,12 @@ type CharacterUpsertPayload = {
   levelOfConfidence: "high" | "low";
 };
 
+type GeneratedCharacterDetails = {
+  translation: string;
+  example: string;
+  type: "verb" | "noun" | "adjective" | "adverb" | "link" | null;
+};
+
 const toCharacter = (
   response: CharacterMutationResponse
 ): ChineseCharacter => ({
@@ -79,6 +85,22 @@ const updateCharacter = async ({
     throw new Error(error.error ?? "Update character failed");
   }
   return toCharacter((await response.json()) as CharacterMutationResponse);
+};
+
+const generateCharacterDetails = async (
+  character: string
+): Promise<GeneratedCharacterDetails> => {
+  const response = await authenticatedApiFetch("/api/generate-character-details", {
+    method: "POST",
+    body: JSON.stringify({ character }),
+  });
+
+  if (!response.ok) {
+    const error = (await response.json()) as { error?: string };
+    throw new Error(error.error ?? "Generate character details failed");
+  }
+
+  return (await response.json()) as GeneratedCharacterDetails;
 };
 
 export const useSetCharacterUnknown = () => {
@@ -141,4 +163,25 @@ export const useUpdateCharacter = () => {
   });
 
   return { handleUpdateCharacter, isUpdateCharacterLoading };
+};
+
+export const useGenerateCharacterDetails = () => {
+  const {
+    mutateAsync: handleGenerateCharacterDetails,
+    isLoading: isGenerateCharacterDetailsLoading,
+  } = useMutation(generateCharacterDetails, {
+    onError: (error) => {
+      console.error(error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Generate character details failed, please try again."
+      );
+    },
+  });
+
+  return {
+    handleGenerateCharacterDetails,
+    isGenerateCharacterDetailsLoading,
+  };
 };

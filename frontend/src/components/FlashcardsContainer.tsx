@@ -1,5 +1,6 @@
 "use client";
 
+import { LogOut } from "lucide-react";
 import { compact, uniq } from "lodash-es";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,6 +12,7 @@ import { CharacterPanelView as CharacterPanel } from "./CharacterPanel/Character
 import { FiltersPanel } from "./FiltersPanel/FiltersPanel";
 import {
   useCreateCharacter,
+  useGenerateCharacterDetails,
   useSetCharacterKnown,
   useSetCharacterUnknown,
   useUpdateCharacter,
@@ -62,6 +64,8 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
   const { handleCharacterKnown } = useSetCharacterKnown();
   const { handleCreateCharacter, isCreateCharacterLoading } = useCreateCharacter();
   const { handleUpdateCharacter, isUpdateCharacterLoading } = useUpdateCharacter();
+  const { handleGenerateCharacterDetails, isGenerateCharacterDetailsLoading } =
+    useGenerateCharacterDetails();
   const { fetchCharacter } = useFetchChineseCharacter({
     characterType,
     characterImportance,
@@ -233,7 +237,8 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
             onClick={onLogout}
             type="button"
           >
-            🚪 Sign out
+            <LogOut className="mr-1 h-4 w-4" />
+            Sign out
           </Button>
         ) : null}
       </HStack>
@@ -293,6 +298,8 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
           }
         }}
         onSubmit={handleCharacterEditorSubmit}
+        onGenerateCharacterDetails={handleGenerateCharacterDetails}
+        isGeneratingCharacterDetails={isGenerateCharacterDetailsLoading}
       />
     </VStack>
   );

@@ -38,7 +38,7 @@ export const CharacterPanelView = ({
   onEditCharacter: () => void;
 }) => {
   return (
-    <Card className="flex-1 p-10 space-y-8 glass rounded-2xl shadow-2xl shadow-black/20 relative">
+    <Card className="flex-1 pt-16 px-10 pb-10 space-y-8 glass rounded-2xl shadow-2xl shadow-black/20 relative min-h-[420px]">
       {onBack && (
         <Button
           variant="ghost"

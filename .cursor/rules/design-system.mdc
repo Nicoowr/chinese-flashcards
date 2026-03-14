@@ -1,0 +1,33 @@
+---
+description: Use design system components from src/components/ui/
+alwaysApply: true
+---
+
+<!-- AUTO-GENERATED FILE. DO NOT EDIT DIRECTLY. -->
+<!-- Edit docs/ai/* and run: pnpm sync:ai-rules -->
+
+# Design System Usage
+
+Always use design system components from `src/components/ui/` instead of raw HTML or custom primitives.
+
+## Component Families
+- Typography: `Heading`, `Body`
+- Layout: `Stack`, `Card`, `Divider`
+- Inputs: `Button`, `Input`, `InputWithLabel`, `Select`, `Switch`, `RadioGroup`, `Label`
+- Feedback: `Alert`, `Tooltip`, `Spinner`, `TfcSpinner`, `LoadingIndicator`, `Badge`
+- Overlays: `Dialog`, `Sheet`, `Drawer`, `Popover`, `HoverCard`
+- Navigation: `DropdownMenu`, `ContextMenu`, `Command`
+- Data Display: `Table`, `Accordion`
+
+```tsx
+// BAD
+<h1 className="text-2xl font-bold">Title</h1>
+<button className="px-4 py-2">Click</button>
+
+// GOOD
+import { Heading } from "@/components/ui/heading";
+import { Button } from "@/components/ui/button";
+
+<Heading level={1}>Title</Heading>
+<Button>Click</Button>
+```

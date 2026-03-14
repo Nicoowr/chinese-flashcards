@@ -1,8 +1,11 @@
-# AI Routing Guide
+---
+description: Task routing and source-of-truth for AI docs
+alwaysApply: true
+---
 
-Use progressive disclosure: start from generated entry files, then load deeper docs only when relevant.
+<!-- AUTO-GENERATED FILE. DO NOT EDIT DIRECTLY. -->
+<!-- Edit docs/ai/* and run: pnpm sync:ai-rules -->
 
-<!-- BEGIN:shared.routing -->
 ## Task Routing
 
 - Frontend UI/components work: read `docs/ai/core-rules.md` (`shared.design-system`) first
@@ -15,4 +18,3 @@ Use progressive disclosure: start from generated entry files, then load deeper d
 - Canonical content lives in `docs/ai/*`
 - Generated files are outputs only: `.cursor/rules/*.mdc`
 - Never edit generated files directly
-<!-- END:shared.routing -->

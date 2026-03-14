@@ -1,9 +1,11 @@
-# AI Core Rules
+---
+description: Core coding standards for the project
+alwaysApply: true
+---
 
-This file is the canonical source for shared AI coding and review rules.
-Generated files (`.cursor/rules/*.mdc`) are derived from marker blocks below.
+<!-- AUTO-GENERATED FILE. DO NOT EDIT DIRECTLY. -->
+<!-- Edit docs/ai/* and run: pnpm sync:ai-rules -->
 
-<!-- BEGIN:shared.coding-standards -->
 # Coding Standards
 
 ## Functions
@@ -225,117 +227,37 @@ const { data, isLoading } = useQuery({
 1. No optional function parameters (`?:`) are introduced.
 2. No side effects exist inside `.map()` callbacks.
 3. No `for`, `.forEach()`, `.reduce()`, `let`, or nested ternaries are introduced.
-<!-- END:shared.coding-standards -->
 
-<!-- BEGIN:shared.design-system -->
-# Design System Usage
+## Cursor Notes
 
-Always use design system components from `src/components/ui/` instead of raw HTML or custom primitives.
+- Keep `.cursor/rules/*.mdc` focused and readable.
+- For design/UX exploration (propose, compare layouts or UX ideas), follow `.cursor/skills/design-proposals/SKILL.md`: propose 2–3 different directions as standalone HTML mockups with interactivity before implementing.
+- Prefer explicit examples only when they clarify intent.
+- Keep rule titles stable so references in prompts remain valid.
 
-## Component Families
-- Typography: `Heading`, `Body`
-- Layout: `Stack`, `Card`, `Divider`
-- Inputs: `Button`, `Input`, `InputWithLabel`, `Select`, `Switch`, `RadioGroup`, `Label`
-- Feedback: `Alert`, `Tooltip`, `Spinner`, `TfcSpinner`, `LoadingIndicator`, `Badge`
-- Overlays: `Dialog`, `Sheet`, `Drawer`, `Popover`, `HoverCard`
-- Navigation: `DropdownMenu`, `ContextMenu`, `Command`
-- Data Display: `Table`, `Accordion`
+## Backend Route Refactor Conventions
 
-```tsx
-// BAD
-<h1 className="text-2xl font-bold">Title</h1>
-<button className="px-4 py-2">Click</button>
+For complex backend route refactors with clear boundaries, prefer:
 
-// GOOD
-import { Heading } from "@/components/ui/heading";
-import { Button } from "@/components/ui/button";
-
-<Heading level={1}>Title</Heading>
-<Button>Click</Button>
 ```
-<!-- END:shared.design-system -->
+apps/backend/src/routes/<feature>/<route>/
+├── <route>.ts                  # Thin pass-through to api route
+├── api/                        # Outside-facing route entry + schema/contracts
+│   ├── <route>-route.ts
+│   └── <route>-schema.ts
+├── dependencies/               # External boundaries (DB, storage, transport, external APIs)
+│   ├── query/
+│   ├── storage/
+│   ├── sse/
+│   └── ...
+├── domain/                     # Business logic and internal workflows/types
+│   ├── types.ts
+│   └── ...
+└── __tests__/
+```
 
-<!-- BEGIN:shared.request-relevance -->
-# Request Relevance Check
-
-Before executing a request, explicitly analyze whether the task is relevant to:
-- The user's stated goal in the current message
-- The active repository/workspace context
-- Existing project rules and constraints
-
-If relevance is unclear, ask a concise clarifying question before making changes.
-
-## Quick Relevance Process
-1. Restate the user's goal in one sentence.
-2. Confirm the files/tools/actions directly support that goal.
-3. Avoid unrelated edits, exploration, or assumptions.
-<!-- END:shared.request-relevance -->
-
-<!-- BEGIN:shared.cursor-rules -->
-# Cursor Project Rules
-
-These rules guide the AI in Cursor when generating or refactoring code across projects.
-
-## Functional programming
-
-- Always prefer functional programming across backend and frontend.
-- Keep domain logic pure and side‑effect free; isolate I/O at the boundaries (API routes, handlers, adapters).
-- Favor immutability: never mutate inputs; return new arrays/objects via spread/utility methods.
-- Prefer function composition and small, single‑purpose functions.
-- Avoid classes, inheritance, and OOP patterns unless required by a framework API.
-- Do not use `for` nor `while` loops; prefer higher‑order functions and recursion.
-- Use `map`, `filter`, `flatMap`, `some`, `every`, and Promise combinators over imperative mutation. Do not use `reduce`
-- In React, use functional state updates; never mutate `props` or state in place.
-
-## State organization
-
-- Keep container/components thin; move UI state and queue mechanics into named hooks (e.g., `useAppState`).
-- Implement queue transitions (e.g., `shiftForward`, `shiftBack`) inside the state hook; they must perform all related state updates internally (including updating any unique-id tracking) and return the new state for reference. Callers must not duplicate this logic.
-- Use a separate hook for configuration-driven effects (e.g., `useOnConfigurationChange`) to reset state and load initial items; avoid placing these effects directly in components.
-
-## Variable and function naming
-
-- Variable names must be meaningful and self‑explanatory; avoid abbreviations and single‑letter names.
-- Use domain terminology consistently.
-- Name variables as nouns; name functions as verbs or verb phrases.
-- Name booleans with `is`, `has`, `should`, or `can` prefixes.
-- Name collections in plural or with suffixes like `List`, `Set`, `Map`; for dictionaries use `By`/`To` (e.g., `entityIdToItem`).
-- Avoid generic names like `data`, `obj`, `res`, or `tmp`.
-- Prefer explicit queue names: `previousItem`, `currentItem`, `nextItem`.
-- Use `seenIds` (array) for uniqueness tracking; derive counts via `seenIds.length`.
-
-## React
-
-- `useEffect` must be encapsulated in a meaningful, named custom hook; avoid calling `useEffect` directly inside components.
-- Encapsulate keyboard listeners in a small hook; ensure Backspace handlers call `event.preventDefault()`.
-- Keep presentation components dumb; pass handlers and booleans like `canGoBack` down via props.
-
-## Collections and control flow
-
-- Prefer arrays over `Set` for uniqueness; model set-like semantics with helpers (e.g., `includes`, `some`, `every`).
-- Do not use inline ifs. Avoid ternaries and short-circuit conditionals for control flow or rendering; prefer explicit `if` statements or small helper functions.
-- For uniqueness, prefer `uniq(compact([...prev, value]))` over set conversion.
-
-## Libraries
-
-- If a utility library like `lodash-es` is installed, prefer named imports for: `sum`, `sumBy`, `max`, `maxBy`, `min`, `minBy`, `orderBy`, `compact`, `uniq`, `groupBy`, `values`.
-
-## Data fetching
-
-- Wrap data fetching in hooks that expose imperative fetchers. Prefer query libraries that support disabling auto-fetch and calling `refetch()` imperatively under the hood.
-- Do not export raw fetch functions for direct use in components; prefer the hook's API.
-- Handle network errors inside hooks and surface brief, non-blocking notifications there when possible.
-
-## Design system
-
-- Use components from the project design system (`frontend/src/components/ui/`) for UI elements (buttons, loaders, dialogs, etc.). Do not import loading spinners, icons, or other primitives directly from external libraries in app or feature code.
-- The design system may implement its components by relying on external libraries; only the design system layer should import from those libraries.
-
-## UI and toasts
-
-- Mount a single notification provider once at the app root. Show brief error toasts for mutation/fetch failures; do not block the UI.
-
-## Simplicity
-
-- Do not overengineer. Prefer the simplest composable solution; avoid premature abstraction or optimization.
-<!-- END:shared.cursor-rules -->
+Requirements:
+- Keep `<route>.ts` as a pass-through without business logic.
+- Do not leave pass-through files that only `export * from ...`.
+- After refactor, each module has a single source-of-truth file path.
+- Update imports/tests to canonical paths in the same refactor.
