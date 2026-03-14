@@ -1,0 +1,21 @@
+---
+description: Analyze request relevance before taking action
+alwaysApply: true
+---
+
+<!-- AUTO-GENERATED FILE. DO NOT EDIT DIRECTLY. -->
+<!-- Edit docs/ai/* and run: pnpm sync:ai-rules -->
+
+# Request Relevance Check
+
+Before executing a request, explicitly analyze whether the task is relevant to:
+- The user's stated goal in the current message
+- The active repository/workspace context
+- Existing project rules and constraints
+
+If relevance is unclear, ask a concise clarifying question before making changes.
+
+## Quick Relevance Process
+1. Restate the user's goal in one sentence.
+2. Confirm the files/tools/actions directly support that goal.
+3. Avoid unrelated edits, exploration, or assumptions.

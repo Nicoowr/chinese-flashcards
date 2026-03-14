@@ -4,9 +4,7 @@ This repository uses a generated AI-rules workflow.
 
 ## Where to Edit
 - Edit canonical files in `docs/ai/*`
-- Do not edit generated files directly:
-  - `CLAUDE.md`
-  - `.cursor/rules/*.mdc`
+- Do not edit generated files directly: `.cursor/rules/*.mdc`
 
 ## Commands
 - Regenerate artifacts:

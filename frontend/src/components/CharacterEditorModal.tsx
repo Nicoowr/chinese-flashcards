@@ -3,7 +3,7 @@
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { CharacterImportance, CharacterType, ChineseCharacter } from "./types";
-import { Body, Box, Button, Card, HStack, VStack } from "../design-system/components";
+import { Body, Box, Button, Card, HStack, Loader, VStack } from "../design-system/components";
 import {
   Dialog,
   DialogContent,
@@ -60,6 +60,8 @@ export const CharacterEditorModal = ({
   isSubmitting,
   onClose,
   onSubmit,
+  onGenerateCharacterDetails,
+  isGeneratingCharacterDetails,
 }: {
   isOpen: boolean;
   mode: "create" | "edit";
@@ -67,6 +69,12 @@ export const CharacterEditorModal = ({
   isSubmitting: boolean;
   onClose: () => void;
   onSubmit: (payload: CharacterEditorPayload) => Promise<void>;
+  onGenerateCharacterDetails: (character: string) => Promise<{
+    translation: string;
+    example: string;
+    type: CharacterType;
+  }>;
+  isGeneratingCharacterDetails: boolean;
 }) => {
   const [formState, setFormState] = useState({
     character: "",
@@ -79,6 +87,8 @@ export const CharacterEditorModal = ({
     numberOfCorrectAnswers: "0",
     levelOfConfidence: "low" as "high" | "low",
   });
+  const [isGeneratingLocal, setIsGeneratingLocal] = useState(false);
+  const isGenerating = isGeneratingLocal || isGeneratingCharacterDetails;
 
   useEffect(() => {
     if (!isOpen) {
@@ -122,6 +132,26 @@ export const CharacterEditorModal = ({
       numberOfCorrectAnswers: Math.floor(numberOfCorrectAnswers),
       levelOfConfidence: formState.levelOfConfidence,
     });
+  };
+
+  const generateCharacterDetails = async () => {
+    const characterValue = formState.character.trim();
+    if (!characterValue) {
+      return;
+    }
+
+    setIsGeneratingLocal(true);
+    try {
+      const generated = await onGenerateCharacterDetails(characterValue);
+      setFormState((prev) => ({
+        ...prev,
+        translation: prev.translation.trim() ? prev.translation : generated.translation,
+        example: prev.example.trim() ? prev.example : generated.example,
+        type: (prev.type ? prev.type : (generated.type ?? "")) as CharacterTypeField,
+      }));
+    } finally {
+      setIsGeneratingLocal(false);
+    }
   };
 
   return (
@@ -184,6 +214,24 @@ export const CharacterEditorModal = ({
                 placeholder="han / Chinese"
               />
             </label>
+
+            <div>
+              <Button
+                type="button"
+                disabled={isGenerating || isSubmitting || !formState.character.trim()}
+                onClick={generateCharacterDetails}
+                className="rounded-xl bg-white/10 px-5 text-slate-100 hover:bg-white/15"
+              >
+                {isGenerating ? (
+                  <Loader className="mr-2 size-4 shrink-0 text-slate-100 [&_circle]:stroke-slate-100" />
+                ) : (
+                  <span className="mr-2 shrink-0" aria-hidden>✨</span>
+                )}
+                {isGenerating
+                  ? "Generating..."
+                  : "Generate translation, example & type"}
+              </Button>
+            </div>
 
             <label className="block text-sm font-medium text-slate-200">
               Example

@@ -20,7 +20,6 @@ const SOURCE_FILES = [
     "docs/ai/core-rules.md",
     "docs/ai/routing.md",
     "docs/ai/tooling/cursor.md",
-    "docs/ai/tooling/claude.md",
 ];
 
 const AUTO_GENERATED_HEADER = [
@@ -123,42 +122,9 @@ const renderCursorRule = (params: {
     );
 };
 
-const renderClaude = (sectionLookup: Record<string, SectionEntry>): string => {
-    const baseContent = requireSection(sectionLookup, "output.claude");
-    const routing = requireSection(sectionLookup, "shared.routing");
-    const codingStandards = requireSection(
-        sectionLookup,
-        "shared.coding-standards",
-    );
-    const designSystem = requireSection(sectionLookup, "shared.design-system");
-    const requestRelevance = requireSection(
-        sectionLookup,
-        "shared.request-relevance",
-    );
-    const claudeAdditions = getOptionalSection(
-        sectionLookup,
-        "claude.additions",
-    );
-
-    const body = joinSections([
-        baseContent,
-        routing,
-        codingStandards,
-        designSystem,
-        requestRelevance,
-        claudeAdditions,
-    ]);
-
-    return withTrailingNewline([AUTO_GENERATED_HEADER, body].join("\n"));
-};
-
 const buildOutputs = (
     sectionLookup: Record<string, SectionEntry>,
 ): Array<OutputFile> => [
-    {
-        path: "CLAUDE.md",
-        content: renderClaude(sectionLookup),
-    },
     {
         path: ".cursor/rules/coding-standards.mdc",
         content: renderCursorRule({
@@ -181,8 +147,26 @@ const buildOutputs = (
         path: ".cursor/rules/request-relevance.mdc",
         content: renderCursorRule({
             description:
-                "Non-Claude models must analyze request relevance before action",
+                "Analyze request relevance before taking action",
             sectionId: "shared.request-relevance",
+            includeCursorAdditions: false,
+            sectionLookup,
+        }),
+    },
+    {
+        path: ".cursor/rules/shared.routing.mdc",
+        content: renderCursorRule({
+            description: "Task routing and source-of-truth for AI docs",
+            sectionId: "shared.routing",
+            includeCursorAdditions: false,
+            sectionLookup,
+        }),
+    },
+    {
+        path: ".cursor/rules/shared.cursor-rules.mdc",
+        content: renderCursorRule({
+            description: "Cursor project rules (FP, state, naming, React)",
+            sectionId: "shared.cursor-rules",
             includeCursorAdditions: false,
             sectionLookup,
         }),

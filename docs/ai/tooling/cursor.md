@@ -6,6 +6,7 @@ Cursor-specific rule overlays for generated `.cursor/rules/*.mdc` files.
 ## Cursor Notes
 
 - Keep `.cursor/rules/*.mdc` focused and readable.
+- For design/UX exploration (propose, compare layouts or UX ideas), follow `.cursor/skills/design-proposals/SKILL.md`: propose 2–3 different directions as standalone HTML mockups with interactivity before implementing.
 - Prefer explicit examples only when they clarify intent.
 - Keep rule titles stable so references in prompts remain valid.
 

@@ -31,4 +31,5 @@ export {
 export { CheckIcon } from "./CheckIcon";
 export { XIcon } from "./XIcon";
 
+export { Loader } from "./loader";
 export { Box, HStack, VStack, Body } from "./layout";
