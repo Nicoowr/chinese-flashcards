@@ -108,14 +108,15 @@ const parseUpdateInput = (payload: unknown): UpdateCharacterInput => {
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await assertAuthorizedEmail(request);
 
+    const { id } = await params;
     const payload = (await request.json()) as unknown;
     const parsed = parseUpdateInput(payload);
-    const updated = await updateCharacter(params.id, parsed);
+    const updated = await updateCharacter(id, parsed);
     return NextResponse.json(updated, { status: 200 });
   } catch (error) {
     const authErrorResponse = toAuthErrorResponse(error);
@@ -130,13 +131,14 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await assertAuthorizedEmail(request);
 
-    await deleteCharacter(params.id);
-    return NextResponse.json({ id: params.id }, { status: 200 });
+    const { id } = await params;
+    await deleteCharacter(id);
+    return NextResponse.json({ id }, { status: 200 });
   } catch (error) {
     const authErrorResponse = toAuthErrorResponse(error);
     if (authErrorResponse) {
