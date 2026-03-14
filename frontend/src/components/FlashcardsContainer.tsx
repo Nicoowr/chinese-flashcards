@@ -22,7 +22,12 @@ import { useOnConfigurationChange } from "./hooks/useOnConfgiurationChange";
 import { SessionCharacterLists } from "./session-character-lists";
 import { ChineseCharacter } from "./types";
 
-export function FlashcardsContainer() {
+type FlashcardsContainerProps = {
+  onLogout?: () => void;
+  userEmail?: string;
+};
+
+export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainerProps = {}) {
   const {
     showIdeogram,
     setShowIdeogram,
@@ -217,11 +222,27 @@ export function FlashcardsContainer() {
     isCreateCharacterLoading || isUpdateCharacterLoading;
 
   return (
-    <div className="dark flex flex-col items-center justify-center h-screen bg-background text-card-foreground relative overflow-hidden">
+    <div className="dark flex flex-col items-center justify-center min-h-screen w-full bg-background text-card-foreground relative overflow-hidden">
       <div className="absolute inset-0 bg-linear-to-br from-blue-950/30 via-background to-indigo-950/20 pointer-events-none" />
-      <div className="absolute top-4 right-4 z-10 glass rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground shadow-lg">
-        <span className="text-foreground font-semibold">{uniqueSeenCount}</span>{" "}
-        seen
+      <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
+        {onLogout ? (
+          <button
+            className="glass rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+            onClick={onLogout}
+            type="button"
+          >
+            🚪 Sign out
+          </button>
+        ) : null}
+      </div>
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-3">
+        {userEmail ? (
+          <span className="glass rounded-xl px-4 py-2 text-sm text-muted-foreground">{userEmail}</span>
+        ) : null}
+        <div className="glass rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground shadow-lg">
+          <span className="text-foreground font-semibold">{uniqueSeenCount}</span>{" "}
+          seen
+        </div>
       </div>
       <div className="relative flex w-full max-w-7xl gap-6 px-6">
         <FiltersPanel
