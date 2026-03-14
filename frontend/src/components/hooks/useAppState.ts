@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CharacterType, CharacterImportance, ChineseCharacter } from "../types";
 import { compact, uniq } from "lodash-es";
 import { useReviewState } from "./useReviewState";
+import { resolveNextCharacter, upsertCharacterById } from "../sessionState";
 
 export const useAppState = () => {
   const [showIdeogram, setShowIdeogram] = useState(false);
@@ -30,8 +31,12 @@ export const useAppState = () => {
     currentCharacter: ChineseCharacter | null;
     nextCharacter: ChineseCharacter | null;
   }) => {
+    const resolvedNextCharacter = resolveNextCharacter({
+      currentCharacter,
+      nextCharacter,
+    });
     const newState = {
-      currentCharacter: nextCharacter,
+      currentCharacter: resolvedNextCharacter,
       nextCharacter: null,
     };
     setCurrentCharacter(newState.currentCharacter);
@@ -45,11 +50,11 @@ export const useAppState = () => {
   };
 
   const addKnownCharacter = (character: ChineseCharacter) => {
-    setKnownCharacters((prev) => [...prev, character]);
+    setKnownCharacters((prev) => upsertCharacterById(prev, character));
   };
 
   const addUnknownCharacter = (character: ChineseCharacter) => {
-    setUnknownCharacters((prev) => [...prev, character]);
+    setUnknownCharacters((prev) => upsertCharacterById(prev, character));
   };
 
   const { isReviewing, startReview, exitReview, recategorizeReviewedCharacter } =
