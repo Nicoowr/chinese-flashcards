@@ -30,3 +30,5 @@ export {
 } from "./select";
 export { CheckIcon } from "./CheckIcon";
 export { XIcon } from "./XIcon";
+
+export { Box, HStack, VStack, Body } from "./layout";

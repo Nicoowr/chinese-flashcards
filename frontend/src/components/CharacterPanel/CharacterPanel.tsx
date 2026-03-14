@@ -1,9 +1,15 @@
 import { Spinner } from "@radix-ui/themes";
 import { ArrowLeft, Pencil, Plus } from "lucide-react";
-import { ChineseCharacter } from "../types";
-import { Card } from "../../design-system/components/card";
-import { Button } from "../../design-system/components/button";
+import {
+  Body,
+  Box,
+  Button,
+  Card,
+  HStack,
+  VStack,
+} from "../../design-system/components";
 import { SessionPieChart } from "../SessionPieChart";
+import { ChineseCharacter } from "../types";
 import { ControlButtons } from "./ControlButtons";
 
 export const CharacterPanelView = ({
@@ -44,7 +50,11 @@ export const CharacterPanelView = ({
           Back
         </Button>
       )}
-      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+      <HStack
+        className="absolute top-4 right-4 z-20"
+        alignItems="center"
+        gap={8}
+      >
         <Button
           variant="outline"
           size="sm"
@@ -64,32 +74,32 @@ export const CharacterPanelView = ({
           <Pencil className="mr-1 h-4 w-4" />
           Edit
         </Button>
-      </div>
+      </HStack>
       {isLoading ? (
-        <div className="flex flex-col items-center py-12">
+        <VStack className="py-12" alignItems="center">
           <Spinner className="animate-spin" />
-        </div>
+        </VStack>
       ) : (
-        <div className="flex flex-col items-center gap-2">
-          <h2 className="text-4xl font-bold tracking-tight">
+        <VStack alignItems="center" gap={8}>
+          <Body as="h2" className="text-4xl font-bold tracking-tight">
             {data?.translation}
-          </h2>
-          <div className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
+          </Body>
+          <Body className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
             {data?.type} / {data?.importance}
-          </div>
+          </Body>
           {showIdeogram && (
-            <div className="flex flex-col items-center mt-4 gap-3">
-              <div className="text-7xl font-bold bg-linear-to-br from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+            <VStack className="mt-4" alignItems="center" gap={12}>
+              <Body as="h1" className="text-7xl font-bold bg-linear-to-br from-blue-400 to-indigo-400 bg-clip-text text-transparent">
                 {data?.character}
-              </div>
-              <div className="text-lg text-muted-foreground italic">
+              </Body>
+              <Body as="p" className="text-lg text-muted-foreground italic">
                 {data?.example}
-              </div>
-            </div>
+              </Body>
+            </VStack>
           )}
-        </div>
+        </VStack>
       )}
-      <div className="flex flex-col items-center space-y-4">
+      <VStack className="space-y-4" alignItems="center">
         <ControlButtons
           handleCheck={handleCheck}
           handleReveal={handleReveal}
@@ -97,13 +107,13 @@ export const CharacterPanelView = ({
           isLoading={isLoading}
           showIdeogram={showIdeogram}
         />
-        <div className="w-full">
+        <Box className="w-full">
           <SessionPieChart
             knownCount={knownCharacters.length}
             totalCount={totalCount}
           />
-        </div>
-      </div>
+        </Box>
+      </VStack>
     </Card>
   );
 };

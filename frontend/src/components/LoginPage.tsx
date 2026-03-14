@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { Body, Box, Button, HStack, VStack } from "../design-system/components";
 import { signInWithPassword, startGoogleOAuthLogin } from "../lib/supabaseClient";
 
 type LoginPageProps = {
@@ -35,17 +36,27 @@ export const LoginPage = ({ onLoggedIn }: LoginPageProps) => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="absolute inset-0 bg-[linear-gradient(to_bottom_right,hsl(230_25%_7%),hsl(230_30%_12%))] pointer-events-none" />
-      <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-card p-6 shadow-xl shadow-cyan-950/20">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Sign in</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Use your email/password or Google account.</p>
+    <VStack
+      className="min-h-screen bg-background p-4 relative"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <Box className="absolute inset-0 bg-[linear-gradient(to_bottom_right,hsl(230_25%_7%),hsl(230_30%_12%))] pointer-events-none" />
+      <VStack className="relative w-full max-w-md rounded-2xl border border-white/10 bg-card p-6 shadow-xl shadow-cyan-950/20" gap={24}>
+        <VStack gap={4}>
+          <Body as="h1" className="text-2xl font-semibold tracking-tight text-foreground">
+            Sign in
+          </Body>
+          <Body as="p" className="text-sm text-muted-foreground">
+            Use your email/password or Google account.
+          </Body>
+        </VStack>
 
-        <form className="mt-6 space-y-4" onSubmit={onPasswordLogin}>
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground" htmlFor="email">
+        <VStack as="form" gap={16} onSubmit={onPasswordLogin}>
+          <VStack gap={4}>
+            <Body as="label" className="text-sm font-medium text-foreground" htmlFor="email">
               Email
-            </label>
+            </Body>
             <input
               id="email"
               className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20"
@@ -55,12 +66,12 @@ export const LoginPage = ({ onLoggedIn }: LoginPageProps) => {
               autoComplete="email"
               required
             />
-          </div>
+          </VStack>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground" htmlFor="password">
+          <VStack gap={4}>
+            <Body as="label" className="text-sm font-medium text-foreground" htmlFor="password">
               Password
-            </label>
+            </Body>
             <input
               id="password"
               className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/20"
@@ -70,34 +81,35 @@ export const LoginPage = ({ onLoggedIn }: LoginPageProps) => {
               autoComplete="current-password"
               required
             />
-          </div>
+          </VStack>
 
-          {errorMessage ? <p className="text-sm text-red-400">{errorMessage}</p> : null}
+          {errorMessage ? <Body as="p" className="text-sm text-red-400">{errorMessage}</Body> : null}
 
-          <button
+          <Button
             className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-emerald-900/30 transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
             type="submit"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Signing in..." : "Sign in with email"}
-          </button>
-        </form>
+          </Button>
+        </VStack>
 
-        <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
-          <div className="h-px flex-1 bg-white/10" />
-          <span>OR</span>
-          <div className="h-px flex-1 bg-white/10" />
-        </div>
+        <HStack className="text-xs text-muted-foreground" alignItems="center" gap={12}>
+          <Box className="h-px flex-1 bg-white/10" />
+          <Body>OR</Body>
+          <Box className="h-px flex-1 bg-white/10" />
+        </HStack>
 
-        <button
+        <Button
+          variant="outline"
           className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
           onClick={onGoogleLogin}
           disabled={isSubmitting}
         >
           Continue with Google
-        </button>
-      </div>
-    </div>
+        </Button>
+      </VStack>
+    </VStack>
   );
 };

@@ -19,6 +19,7 @@ import { useFetchChineseCharacter } from "./FlashcardsContainer.queries";
 import { useAppState } from "./hooks/useAppState";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useOnConfigurationChange } from "./hooks/useOnConfgiurationChange";
+import { Body, Box, Button, HStack, VStack } from "../design-system/components";
 import { SessionCharacterLists } from "./session-character-lists";
 import { ChineseCharacter } from "./types";
 
@@ -222,29 +223,30 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
     isCreateCharacterLoading || isUpdateCharacterLoading;
 
   return (
-    <div className="dark flex flex-col items-center justify-center min-h-screen w-full bg-background text-card-foreground relative overflow-hidden">
-      <div className="absolute inset-0 bg-linear-to-br from-blue-950/30 via-background to-indigo-950/20 pointer-events-none" />
-      <div className="absolute top-4 left-4 z-10 flex items-center gap-3">
+    <VStack className="dark min-h-screen w-full bg-background text-card-foreground relative overflow-hidden" alignItems="center" justifyContent="center">
+      <Box className="absolute inset-0 bg-linear-to-br from-blue-950/30 via-background to-indigo-950/20 pointer-events-none" />
+      <HStack className="absolute top-4 left-4 z-10" alignItems="center" gap={12}>
         {onLogout ? (
-          <button
+          <Button
+            variant="ghost"
             className="glass rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
             onClick={onLogout}
             type="button"
           >
             🚪 Sign out
-          </button>
+          </Button>
         ) : null}
-      </div>
-      <div className="absolute top-4 right-4 z-10 flex items-center gap-3">
+      </HStack>
+      <HStack className="absolute top-4 right-4 z-10" alignItems="center" gap={12}>
         {userEmail ? (
-          <span className="glass rounded-xl px-4 py-2 text-sm text-muted-foreground">{userEmail}</span>
+          <Body className="glass rounded-xl px-4 py-2 text-sm text-muted-foreground">{userEmail}</Body>
         ) : null}
-        <div className="glass rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground shadow-lg">
-          <span className="text-foreground font-semibold">{uniqueSeenCount}</span>{" "}
+        <Body className="glass rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground shadow-lg">
+          <Body className="text-foreground font-semibold">{uniqueSeenCount}</Body>{" "}
           seen
-        </div>
-      </div>
-      <div className="relative flex w-full max-w-7xl gap-6 px-6">
+        </Body>
+      </HStack>
+      <HStack className="relative w-full max-w-7xl px-6" gap={24}>
         <FiltersPanel
           setCharacterType={setCharacterType}
           setCharacterImportance={setCharacterImportance}
@@ -279,7 +281,7 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
           unknownCharacters={unknownCharacters}
           onCharacterClick={startReview}
         />
-      </div>
+      </HStack>
       <CharacterEditorModal
         isOpen={Boolean(editorState)}
         mode={editorState?.mode ?? "create"}
@@ -292,6 +294,6 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
         }}
         onSubmit={handleCharacterEditorSubmit}
       />
-    </div>
+    </VStack>
   );
 }
