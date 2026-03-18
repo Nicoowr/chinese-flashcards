@@ -24,6 +24,7 @@ import { useOnConfigurationChange } from "./hooks/useOnConfgiurationChange";
 import { Body, Box, Button, HStack, VStack } from "../design-system/components";
 import { SessionCharacterLists } from "./session-character-lists";
 import { ChineseCharacter } from "./types";
+import { CharacterSearchModal } from "./CharacterSearchModal";
 
 type FlashcardsContainerProps = {
   onLogout?: () => void;
@@ -60,6 +61,7 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
     mode: "create" | "edit";
     character: ChineseCharacter | null;
   } | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { handleCharacterUnknown } = useSetCharacterUnknown();
   const { handleCharacterKnown } = useSetCharacterKnown();
   const { handleCreateCharacter, isCreateCharacterLoading } = useCreateCharacter();
@@ -243,6 +245,14 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
         ) : null}
       </HStack>
       <HStack className="absolute top-4 right-4 z-10" alignItems="center" gap={12}>
+        <Button
+          variant="ghost"
+          className="glass rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+          onClick={() => setIsSearchOpen(true)}
+          type="button"
+        >
+          Search & edit
+        </Button>
         {userEmail ? (
           <Body className="glass rounded-xl px-4 py-2 text-sm text-muted-foreground">{userEmail}</Body>
         ) : null}
@@ -300,6 +310,16 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
         onSubmit={handleCharacterEditorSubmit}
         onGenerateCharacterDetails={handleGenerateCharacterDetails}
         isGeneratingCharacterDetails={isGenerateCharacterDetailsLoading}
+      />
+      <CharacterSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onEditCharacter={(character) => {
+          setEditorState({
+            mode: "edit",
+            character,
+          });
+        }}
       />
     </VStack>
   );
