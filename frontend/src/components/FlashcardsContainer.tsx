@@ -20,6 +20,7 @@ import {
 import { useFetchChineseCharacter } from "./FlashcardsContainer.queries";
 import { useAppState } from "./hooks/useAppState";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { useSearchTableShortcut } from "./hooks/useSearchTableShortcut";
 import { useOnConfigurationChange } from "./hooks/useOnConfgiurationChange";
 import { Body, Box, Button, HStack, VStack } from "../design-system/components";
 import { SessionCharacterLists } from "./session-character-lists";
@@ -220,6 +221,11 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
     handleUnknown,
     isReviewing,
     onExitReview: exitReview,
+    isDisabled: Boolean(editorState),
+  });
+
+  useSearchTableShortcut({
+    onOpenSearch: () => setIsSearchOpen(true),
     isDisabled: Boolean(editorState),
   });
 

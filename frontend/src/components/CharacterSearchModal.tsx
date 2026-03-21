@@ -106,6 +106,14 @@ type ResultsSummaryParams = {
   totalCount: number;
 };
 
+
+const normalizeForSearch = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "")
+    .toLowerCase();
+
 const getResultsSummary = ({
   query,
   filteredCount,
@@ -148,10 +156,12 @@ export const CharacterSearchModal = ({
 
   const filtered = useMemo(() => {
     const allCharacters = data ?? [];
-    const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
       return allCharacters;
     }
+
+    const normalizedQuery = normalizeForSearch(trimmedQuery);
 
     return allCharacters.filter((character) =>
       [
@@ -161,8 +171,14 @@ export const CharacterSearchModal = ({
         character.type,
         character.importance,
       ]
-        .filter(Boolean)
-        .some((value) => value?.toLowerCase().includes(normalizedQuery))
+        .filter((value): value is string => Boolean(value))
+        .some((value) => {
+          const lowerValue = value.toLowerCase();
+          return (
+            lowerValue.includes(trimmedQuery.toLowerCase()) ||
+            normalizeForSearch(value).includes(normalizedQuery)
+          );
+        })
     );
   }, [data, query]);
 
@@ -213,7 +229,7 @@ export const CharacterSearchModal = ({
             No characters match this search yet.
           </Body>
           <Body className="max-w-md text-sm text-slate-400">
-            Try a character, translation, example, type, or importance keyword.
+            Try a character, pinyin, translation, example, type, or importance keyword.
           </Body>
         </VStack>
       );
@@ -292,7 +308,7 @@ export const CharacterSearchModal = ({
               </Body>
               <DialogTitle>Find and edit any character</DialogTitle>
               <DialogDescription className="mt-2">
-                Search by character, translation, type, example, or importance and
+                Search by character, pinyin, translation, type, example, or importance and
                 jump directly into the editor.
               </DialogDescription>
             </DialogHeader>
@@ -317,7 +333,7 @@ export const CharacterSearchModal = ({
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search character, translation, example, type, or importance"
+                placeholder="Search character, pinyin, translation, example, type, or importance"
                 className="w-full rounded-2xl border border-white/10 bg-slate-950/70 py-3.5 pl-11 pr-4 text-sm text-slate-100 outline-hidden transition placeholder:text-slate-500 focus:border-cyan-400/70 focus:ring-2 focus:ring-cyan-400/20"
               />
             </label>
