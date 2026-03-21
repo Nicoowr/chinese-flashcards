@@ -51,7 +51,7 @@ const toDateInput = (date: Date | null) =>
 const today = () => dayjs().format("YYYY-MM-DD");
 
 const inputClassName =
-  "mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-slate-100 outline-hidden transition placeholder:text-slate-500 focus:border-cyan-400/70 focus:ring-2 focus:ring-cyan-400/20";
+  "mt-2 w-full rounded-xl border border-border bg-background/70 px-4 py-3 text-base text-foreground outline-hidden transition placeholder:text-muted-foreground focus:border-ring/60 focus:ring-2 focus:ring-ring/20";
 
 export const CharacterEditorModal = ({
   isOpen,
@@ -163,12 +163,12 @@ export const CharacterEditorModal = ({
         }
       }}
     >
-      <DialogContent className="overflow-hidden border-white/10 bg-slate-900/95 p-0 text-slate-100">
-        <Card className="relative w-full overflow-hidden border-0 bg-transparent text-slate-100 shadow-none">
-        <Box className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.22),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.18),_transparent_40%)]" />
-        <div className="relative border-b border-white/10 px-8 py-7">
+      <DialogContent className="overflow-hidden border-border/70 bg-card/95 p-0 text-card-foreground">
+        <Card className="relative w-full overflow-hidden border-0 bg-transparent text-card-foreground shadow-none">
+        <Box className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.16),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.14),_transparent_40%)]" />
+        <div className="relative border-b border-border/80 px-8 py-7">
           <DialogHeader className="max-w-2xl pr-12">
-              <Body className="mb-3 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
+              <Body className="mb-3 inline-flex rounded-full border border-border bg-secondary/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-secondary-foreground">
                 {mode === "create" ? "Add Character" : "Edit Current Card"}
               </Body>
               <DialogTitle>
@@ -184,7 +184,7 @@ export const CharacterEditorModal = ({
 
         <form className="relative grid gap-6 px-8 py-7 lg:grid-cols-[1.25fr_0.9fr]" onSubmit={submit}>
           <VStack gap={20}>
-            <label className="block text-sm font-medium text-slate-200">
+            <label className="block text-sm font-medium text-foreground/90">
               Character
               <input
                 required
@@ -200,7 +200,7 @@ export const CharacterEditorModal = ({
               />
             </label>
 
-            <label className="block text-sm font-medium text-slate-200">
+            <label className="block text-sm font-medium text-foreground/90">
               Translation
               <input
                 value={formState.translation}
@@ -220,10 +220,10 @@ export const CharacterEditorModal = ({
                 type="button"
                 disabled={isGenerating || isSubmitting || !formState.character.trim()}
                 onClick={generateCharacterDetails}
-                className="rounded-xl bg-white/10 px-5 text-slate-100 hover:bg-white/15"
+                className="rounded-xl border border-border bg-secondary/60 px-5 text-secondary-foreground hover:bg-secondary"
               >
                 {isGenerating ? (
-                  <Loader className="mr-2 text-slate-100" />
+                  <Loader className="mr-2 text-secondary-foreground" />
                 ) : (
                   <span className="mr-2 shrink-0" aria-hidden>✨</span>
                 )}
@@ -233,7 +233,7 @@ export const CharacterEditorModal = ({
               </Button>
             </div>
 
-            <label className="block text-sm font-medium text-slate-200">
+            <label className="block text-sm font-medium text-foreground/90">
               Example
               <textarea
                 value={formState.example}
@@ -251,7 +251,7 @@ export const CharacterEditorModal = ({
 
           <VStack gap={20}>
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block text-sm font-medium text-slate-200">
+              <label className="block text-sm font-medium text-foreground/90">
                 Type
                 <select
                   value={formState.type}
@@ -267,7 +267,7 @@ export const CharacterEditorModal = ({
                     <option
                       key={option.label}
                       value={option.value ?? ""}
-                      className="bg-slate-950 text-slate-100"
+                      className="bg-card text-card-foreground"
                     >
                       {option.label}
                     </option>
@@ -275,7 +275,7 @@ export const CharacterEditorModal = ({
                 </select>
               </label>
 
-              <label className="block text-sm font-medium text-slate-200">
+              <label className="block text-sm font-medium text-foreground/90">
                 Importance
                 <select
                   value={formState.importance}
@@ -293,7 +293,7 @@ export const CharacterEditorModal = ({
                     <option
                       key={option.label}
                       value={option.value ?? ""}
-                      className="bg-slate-950 text-slate-100"
+                      className="bg-card text-card-foreground"
                     >
                       {option.label}
                     </option>
@@ -303,8 +303,8 @@ export const CharacterEditorModal = ({
             </div>
           </VStack>
 
-          <HStack className="lg:col-span-2 border-t border-white/10 pt-2" alignItems="center" justifyContent="space-between">
-            <Body as="p" className="text-sm text-slate-400">
+          <HStack className="lg:col-span-2 border-t border-border/80 pt-2" alignItems="center" justifyContent="space-between">
+            <Body as="p" className="text-sm text-muted-foreground">
               {mode === "create"
                 ? "New cards are created with today's dates and high importance by default."
                 : "Saving updates the current card instantly in the session."}
@@ -314,7 +314,7 @@ export const CharacterEditorModal = ({
                 type="button"
                 variant="ghost"
                 disabled={isSubmitting}
-                className="rounded-xl border border-white/10 bg-white/5 px-5 text-slate-200 hover:bg-white/10"
+                className="rounded-xl border border-border bg-secondary/50 px-5 text-secondary-foreground hover:bg-secondary"
                 onClick={onClose}
               >
                 Cancel
@@ -322,7 +322,7 @@ export const CharacterEditorModal = ({
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="rounded-xl bg-linear-to-r from-cyan-400 to-blue-500 px-6 text-slate-950 shadow-lg shadow-cyan-950/40 hover:from-cyan-300 hover:to-blue-400"
+                className="rounded-xl bg-linear-to-r from-blue-400 to-indigo-400 px-6 text-primary-foreground shadow-lg shadow-indigo-950/30 hover:from-blue-300 hover:to-indigo-300"
               >
                 {isSubmitting
                   ? "Saving..."
