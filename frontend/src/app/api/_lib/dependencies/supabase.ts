@@ -131,6 +131,51 @@ const queryCharacters = async (params: URLSearchParams) => {
   return readResponse<CharacterRow[]>(response);
 };
 
+const countCharacters = async (params: URLSearchParams) => {
+  const countParams = new URLSearchParams(params);
+  countParams.set("select", "id");
+  countParams.delete("limit");
+  countParams.delete("offset");
+  countParams.delete("order");
+
+  const response = await fetch(buildRestUrl(TABLE_NAME, countParams), {
+    method: "GET",
+    headers: buildHeaders({
+      prefer: "count=exact",
+    }),
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`Supabase count request failed: ${response.status} ${message}`);
+  }
+
+  const contentRange = response.headers.get("content-range");
+  if (!contentRange) {
+    return 0;
+  }
+
+  const totalCount = Number(contentRange.split("/")[1]);
+  return Number.isFinite(totalCount) ? totalCount : 0;
+};
+
+const withRandomOffset = (
+  params: URLSearchParams,
+  totalMatchingCharacters: number,
+  limit: number
+) => {
+  if (totalMatchingCharacters <= limit) {
+    return params;
+  }
+
+  const maxOffset = totalMatchingCharacters - limit;
+  const offset = Math.floor(Math.random() * (maxOffset + 1));
+  const nextParams = new URLSearchParams(params);
+  nextParams.set("offset", String(offset));
+
+  return nextParams;
+};
+
 const upsertBodyFromInput = (
   input: CreateCharacterInput | UpdateCharacterInput
 ) => {
@@ -273,7 +318,9 @@ export const fetchUnknownCharacters = async (
     params.set("importance", `eq.${filters.characterImportance}`);
   }
 
-  const rows = await queryCharacters(params);
+  const totalMatchingCharacters = await countCharacters(params);
+  const randomizedParams = withRandomOffset(params, totalMatchingCharacters, limit);
+  const rows = await queryCharacters(randomizedParams);
   return rows.map(mapRowToChineseCharacter);
 };
 
@@ -297,7 +344,9 @@ export const fetchRecentlyKnownCharacters = async (
     params.set("importance", `eq.${filters.characterImportance}`);
   }
 
-  const rows = await queryCharacters(params);
+  const totalMatchingCharacters = await countCharacters(params);
+  const randomizedParams = withRandomOffset(params, totalMatchingCharacters, limit);
+  const rows = await queryCharacters(randomizedParams);
   return rows.map(mapRowToChineseCharacter);
 };
 
