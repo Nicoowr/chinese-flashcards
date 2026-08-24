@@ -102,8 +102,12 @@ export async function GET(request: Request) {
 
     const url = new URL(request.url);
     const limit = Number(url.searchParams.get("limit") ?? 500);
-    const characters = await listAdminCharacters(Number.isNaN(limit) ? 500 : limit);
-    return NextResponse.json(characters, { status: 200 });
+    const offset = Number(url.searchParams.get("offset") ?? 0);
+    const page = await listAdminCharacters(
+      Number.isFinite(limit) ? limit : 500,
+      Number.isFinite(offset) ? offset : 0
+    );
+    return NextResponse.json(page, { status: 200 });
   } catch (error) {
     const authErrorResponse = toAuthErrorResponse(error);
     if (authErrorResponse) {
