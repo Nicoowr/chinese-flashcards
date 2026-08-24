@@ -131,6 +131,23 @@ const queryCharacters = async (params: URLSearchParams) => {
   return readResponse<CharacterRow[]>(response);
 };
 
+const queryAdminCharacterPage = async (params: URLSearchParams) => {
+  const response = await fetch(buildRestUrl(TABLE_NAME, params), {
+    method: "GET",
+    headers: buildHeaders({ prefer: "count=exact" }),
+    cache: "no-store",
+  });
+  const rows = await readResponse<CharacterRow[]>(response);
+  const contentRange = response.headers.get("content-range");
+  const total = Number(contentRange?.split("/")[1]);
+
+  if (!Number.isFinite(total)) {
+    throw new Error("Supabase response did not include an exact character count");
+  }
+
+  return { rows, total };
+};
+
 const countCharacters = async (params: URLSearchParams) => {
   const countParams = new URLSearchParams(params);
   countParams.set("select", "id");
@@ -216,14 +233,19 @@ const upsertBodyFromInput = (
   return body;
 };
 
-export const listAdminCharacters = async (limit = 500) => {
+export const listAdminCharacters = async (limit = 500, offset = 0) => {
   const params = new URLSearchParams();
   params.set("select", "*");
-  params.set("order", "added_at.desc.nullslast,character.asc");
-  params.set("limit", String(Math.min(Math.max(limit, 1), 1000)));
+  params.set("order", "added_at.desc.nullslast,character.asc,id.asc");
+  params.set("limit", String(Math.min(Math.max(Math.trunc(limit), 1), 1000)));
+  params.set("offset", String(Math.max(Math.trunc(offset), 0)));
 
-  const rows = await queryCharacters(params);
-  return rows.map(mapRowToAdminCharacter);
+  const { rows, total } = await queryAdminCharacterPage(params);
+
+  return {
+    characters: rows.map(mapRowToAdminCharacter),
+    total,
+  };
 };
 
 export const createCharacter = async (input: CreateCharacterInput) => {

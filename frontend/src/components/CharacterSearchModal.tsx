@@ -5,7 +5,6 @@ import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { toast } from "sonner";
-import { authenticatedApiFetch } from "../lib/supabaseClient";
 import {
   Body,
   Box,
@@ -23,28 +22,7 @@ import {
   DialogTitle,
 } from "../design-system/components/dialog";
 import { ChineseCharacter } from "./types";
-
-type CharacterListResponse = Omit<ChineseCharacter, "addedAt" | "lastSeenAt"> & {
-  addedAt: string | null;
-  lastSeenAt: string | null;
-};
-
-const toCharacter = (response: CharacterListResponse): ChineseCharacter => ({
-  ...response,
-  addedAt: response.addedAt ? new Date(`${response.addedAt}T00:00:00.000Z`) : null,
-  lastSeenAt: response.lastSeenAt ? new Date(`${response.lastSeenAt}T00:00:00.000Z`) : null,
-});
-
-const fetchAdminCharacters = async (): Promise<ChineseCharacter[]> => {
-  const response = await authenticatedApiFetch("/api/admin/characters?limit=1000");
-  if (!response.ok) {
-    const error = (await response.json()) as { error?: string };
-    throw new Error(error.error ?? "Failed to fetch characters");
-  }
-
-  const payload = (await response.json()) as CharacterListResponse[];
-  return payload.map(toCharacter);
-};
+import { fetchAdminCharacters } from "./CharacterSearchModal.data";
 
 const formatLastSeenLabel = (lastSeenAt: Date | null) => {
   if (!lastSeenAt) {
@@ -155,7 +133,7 @@ export const CharacterSearchModal = ({
   );
 
   const filtered = useMemo(() => {
-    const allCharacters = data ?? [];
+    const allCharacters = data?.characters ?? [];
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {
       return allCharacters;
@@ -182,9 +160,9 @@ export const CharacterSearchModal = ({
     );
   }, [data, query]);
 
-  const allCharacters = data ?? [];
+  const allCharacters = data?.characters ?? [];
   const filteredCount = filtered.length;
-  const totalCount = allCharacters.length;
+  const totalCount = data?.total ?? 0;
   const isInitialLoading = (isLoading || isFetching) && !data;
   const resultsSummary = getResultsSummary({
     query,
