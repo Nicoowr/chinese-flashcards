@@ -15,6 +15,7 @@ const TABLE_NAME = "chinese_characters";
 type CharacterRow = {
   id: string;
   character: string;
+  pinyin: string | null;
   translation: string | null;
   example: string | null;
   added_at: string | null;
@@ -98,6 +99,7 @@ const normalizeDateInput = (value?: string | null): string | null => {
 const mapRowToChineseCharacter = (row: CharacterRow): ChineseCharacter => ({
   id: row.id,
   character: row.character,
+  pinyin: row.pinyin,
   translation: row.translation,
   example: row.example,
   addedAt: toDate(row.added_at),
@@ -111,6 +113,7 @@ const mapRowToChineseCharacter = (row: CharacterRow): ChineseCharacter => ({
 const mapRowToAdminCharacter = (row: CharacterRow): AdminCharacter => ({
   id: row.id,
   character: row.character,
+  pinyin: row.pinyin,
   translation: row.translation,
   example: row.example,
   addedAt: row.added_at,
@@ -204,6 +207,9 @@ const upsertBodyFromInput = (
 
   if ("translation" in input) {
     body.translation = input.translation?.trim() || null;
+  }
+  if ("pinyin" in input) {
+    body.pinyin = input.pinyin?.trim() || null;
   }
   if ("example" in input) {
     body.example = input.example?.trim() || null;

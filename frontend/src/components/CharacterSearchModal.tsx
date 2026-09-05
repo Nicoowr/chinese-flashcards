@@ -106,6 +106,9 @@ const getResultsSummary = ({
   return `${filteredCount} match${filteredCount === 1 ? "" : "es"} for "${query.trim()}"`;
 };
 
+const searchInputClassName =
+  "w-full rounded-xl border border-border bg-background/70 py-3.5 pl-11 pr-4 text-sm text-foreground outline-hidden transition placeholder:text-muted-foreground focus:border-ring/60 focus:ring-2 focus:ring-ring/20";
+
 export const CharacterSearchModal = ({
   isOpen,
   onClose,
@@ -144,6 +147,7 @@ export const CharacterSearchModal = ({
     return allCharacters.filter((character) =>
       [
         character.character,
+        character.pinyin ?? "",
         character.translation,
         character.example,
         character.type,
@@ -215,7 +219,7 @@ export const CharacterSearchModal = ({
 
     return (
       <table className="w-full min-w-[760px] text-sm">
-        <thead className="sticky top-0 z-10 bg-slate-950/95 text-xs uppercase tracking-[0.18em] text-slate-400 backdrop-blur-sm">
+        <thead className="sticky top-0 z-10 bg-card/95 text-xs uppercase tracking-[0.18em] text-muted-foreground backdrop-blur-sm">
           <tr>
             <th className="px-5 py-4 text-left">Character</th>
             <th className="px-5 py-4 text-left">Translation</th>
@@ -229,16 +233,21 @@ export const CharacterSearchModal = ({
           {filtered.map((character) => (
             <tr
               key={character.id}
-              className="border-t border-white/5 text-slate-200 transition hover:bg-white/[0.045]"
+              className="border-t border-border/60 text-foreground transition hover:bg-secondary/35"
             >
-              <td className="px-5 py-4 align-middle text-2xl font-semibold tracking-wide text-white">
-                {character.character}
+              <td className="px-5 py-4 align-middle">
+                <Body className="text-2xl font-semibold tracking-wide text-foreground">
+                  {character.character}
+                </Body>
+                <Body className="mt-1 text-xs text-muted-foreground">
+                  {character.pinyin || "No pinyin"}
+                </Body>
               </td>
-              <td className="max-w-[280px] px-5 py-4 align-middle text-slate-300">
+              <td className="max-w-[280px] px-5 py-4 align-middle text-foreground/90">
                 <Body as="div" className="truncate">
                   {character.translation || "—"}
                 </Body>
-                <Body as="div" className="mt-1 truncate text-xs text-slate-500">
+                <Body as="div" className="mt-1 truncate text-xs text-muted-foreground">
                   {character.example || "No example yet"}
                 </Body>
               </td>
@@ -252,7 +261,7 @@ export const CharacterSearchModal = ({
                   {character.importance ?? "Unspecified"}
                 </Body>
               </td>
-              <td className="px-5 py-4 align-middle text-slate-300">
+              <td className="px-5 py-4 align-middle text-foreground/90">
                 {formatLastSeenLabel(character.lastSeenAt)}
               </td>
               <td className="px-5 py-4 text-right align-middle">
@@ -260,7 +269,7 @@ export const CharacterSearchModal = ({
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="rounded-xl border-cyan-400/20 bg-cyan-400/10 text-cyan-100 hover:bg-cyan-400/20 hover:text-white"
+                  className="rounded-xl border border-border bg-secondary/60 text-secondary-foreground hover:bg-secondary"
                   onClick={() => handleEdit(character)}
                 >
                   Edit
@@ -275,13 +284,13 @@ export const CharacterSearchModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => (!open ? closeModal() : null)}>
-      <DialogContent className="max-w-5xl overflow-hidden border-white/10 bg-slate-900/95 p-0 text-slate-100">
-        <Card className="relative w-full overflow-hidden border-0 bg-transparent text-slate-100 shadow-none">
-          <Box className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.2),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.16),_transparent_38%)]" />
+      <DialogContent className="max-w-5xl overflow-hidden border-border/70 bg-card/95 p-0 text-card-foreground">
+        <Card className="relative w-full overflow-hidden border-0 bg-transparent text-card-foreground shadow-none">
+          <Box className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.16),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.14),_transparent_40%)]" />
 
-          <Box className="relative border-b border-white/10 px-8 py-7">
+          <Box className="relative border-b border-border/80 px-8 py-7">
             <DialogHeader className="max-w-3xl pr-12">
-              <Body className="mb-3 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
+              <Body className="mb-3 inline-flex rounded-full border border-border bg-secondary/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-secondary-foreground">
                 Character Library
               </Body>
               <DialogTitle>Find and edit any character</DialogTitle>
@@ -292,14 +301,14 @@ export const CharacterSearchModal = ({
             </DialogHeader>
 
             <HStack
-              className="mt-5 flex-wrap text-sm text-slate-400"
+              className="mt-5 flex-wrap text-sm text-muted-foreground"
               alignItems="center"
               gap={12}
             >
-              <Body className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-slate-200">
+              <Body className="rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-secondary-foreground">
                 {totalCount} total
               </Body>
-              <Body className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+              <Body className="rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-secondary-foreground">
                 {resultsSummary}
               </Body>
             </HStack>
@@ -307,16 +316,16 @@ export const CharacterSearchModal = ({
 
           <VStack className="relative px-8 py-6" gap={18}>
             <label className="relative block">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search character, pinyin, translation, example, type, or importance"
-                className="w-full rounded-2xl border border-white/10 bg-slate-950/70 py-3.5 pl-11 pr-4 text-sm text-slate-100 outline-hidden transition placeholder:text-slate-500 focus:border-cyan-400/70 focus:ring-2 focus:ring-cyan-400/20"
+                className={searchInputClassName}
               />
             </label>
 
-            <Box className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/55 shadow-inner shadow-black/20">
+            <Box className="overflow-hidden rounded-[1.5rem] border border-border/80 bg-background/35 shadow-inner shadow-black/10">
               <Box className="max-h-[56vh] overflow-auto">{renderResults()}</Box>
             </Box>
           </VStack>
