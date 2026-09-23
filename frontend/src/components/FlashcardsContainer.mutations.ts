@@ -1,4 +1,4 @@
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { toast } from "sonner";
 import { authenticatedApiFetch } from "../lib/supabaseClient";
 import { ChineseCharacter } from "./types";
@@ -130,10 +130,14 @@ export const useSetCharacterKnown = () => {
 };
 
 export const useCreateCharacter = () => {
+  const queryClient = useQueryClient();
   const {
     mutateAsync: handleCreateCharacter,
     isLoading: isCreateCharacterLoading,
   } = useMutation(createCharacter, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["adminCharacters"]);
+    },
     onError: (error) => {
       console.error(error);
       toast.error(
