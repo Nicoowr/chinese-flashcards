@@ -36,14 +36,35 @@ const toCharacter = (response: CharacterListResponse): ChineseCharacter => ({
 });
 
 const fetchAdminCharacters = async (): Promise<ChineseCharacter[]> => {
-  const response = await authenticatedApiFetch("/api/admin/characters?limit=1000");
-  if (!response.ok) {
-    const error = (await response.json()) as { error?: string };
-    throw new Error(error.error ?? "Failed to fetch characters");
-  }
+  const pageSize = 1000;
+  const characters: ChineseCharacter[] = [];
+  let totalCount: number | null = null;
 
-  const payload = (await response.json()) as CharacterListResponse[];
-  return payload.map(toCharacter);
+  let offset = 0;
+  for (;;) {
+    const response = await authenticatedApiFetch(
+      `/api/admin/characters?limit=${pageSize}&offset=${offset}`
+    );
+    if (!response.ok) {
+      const error = (await response.json()) as { error?: string };
+      throw new Error(error.error ?? "Failed to fetch characters");
+    }
+
+    const payload = (await response.json()) as CharacterListResponse[];
+    if (offset === 0) {
+      const countHeader = Number(response.headers.get("X-Total-Count"));
+      totalCount = Number.isFinite(countHeader) ? countHeader : null;
+    }
+    characters.push(...payload.map(toCharacter));
+    offset += payload.length;
+    if (
+      (totalCount !== null && characters.length >= totalCount) ||
+      (totalCount === null && payload.length < pageSize) ||
+      payload.length === 0
+    ) {
+      return characters;
+    }
+  }
 };
 
 const formatLastSeenLabel = (lastSeenAt: Date | null) => {
