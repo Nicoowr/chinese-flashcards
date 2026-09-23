@@ -216,19 +216,14 @@ const upsertBodyFromInput = (
   return body;
 };
 
-export const listAdminCharacters = async (limit = 500, offset = 0) => {
+export const listAdminCharacters = async (limit = 500) => {
   const params = new URLSearchParams();
   params.set("select", "*");
   params.set("order", "added_at.desc.nullslast,character.asc");
   params.set("limit", String(Math.min(Math.max(limit, 1), 1000)));
-  params.set("offset", String(Math.max(0, Math.floor(offset))));
 
   const rows = await queryCharacters(params);
   return rows.map(mapRowToAdminCharacter);
-};
-
-export const countAdminCharacters = async () => {
-  return countCharacters(new URLSearchParams());
 };
 
 export const createCharacter = async (input: CreateCharacterInput) => {

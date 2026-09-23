@@ -10,7 +10,6 @@ import {
   CreateCharacterInput,
 } from "../../_lib/domain/types";
 import {
-  countAdminCharacters,
   createCharacter,
   listAdminCharacters,
 } from "../../_lib/dependencies/supabase";
@@ -103,18 +102,8 @@ export async function GET(request: Request) {
 
     const url = new URL(request.url);
     const limit = Number(url.searchParams.get("limit") ?? 500);
-    const offset = Number(url.searchParams.get("offset") ?? 0);
-    const characters = await listAdminCharacters(
-      Number.isFinite(limit) ? limit : 500,
-      Number.isFinite(offset) ? offset : 0
-    );
-    const totalCount = Number.isFinite(offset) && offset > 0
-      ? null
-      : await countAdminCharacters();
-    return NextResponse.json(characters, {
-      status: 200,
-      headers: totalCount === null ? {} : { "X-Total-Count": String(totalCount) },
-    });
+    const characters = await listAdminCharacters(Number.isNaN(limit) ? 500 : limit);
+    return NextResponse.json(characters, { status: 200 });
   } catch (error) {
     const authErrorResponse = toAuthErrorResponse(error);
     if (authErrorResponse) {
