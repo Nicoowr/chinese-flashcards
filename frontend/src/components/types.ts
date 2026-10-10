@@ -10,6 +10,7 @@ export type CharacterType =
 export type ChineseCharacter = {
   id: string;
   character: string;
+  pinyin?: string | null;
   translation: string | null;
   example: string | null;
   addedAt: Date | null;
