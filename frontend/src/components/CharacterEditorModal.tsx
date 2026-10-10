@@ -11,6 +11,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../design-system/components/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../design-system/components/select";
 
 export type CharacterEditorPayload = {
   character: string;
@@ -165,7 +172,7 @@ export const CharacterEditorModal = ({
         }
       }}
     >
-      <DialogContent className="overflow-hidden border-border/70 bg-card/95 p-0 text-card-foreground">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto border-border/70 bg-card/95 p-0 text-card-foreground">
         <Card className="relative w-full overflow-hidden border-0 bg-transparent text-card-foreground shadow-none">
         <Box className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.16),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(99,102,241,0.14),_transparent_40%)]" />
         <div className="relative border-b border-border/80 px-8 py-7">
@@ -252,6 +259,35 @@ export const CharacterEditorModal = ({
           </VStack>
 
           <VStack gap={20}>
+            <Box>
+              <Body
+                id="character-knowledge-label"
+                className="text-sm font-medium text-foreground/90"
+              >
+                Knowledge
+              </Body>
+              <Select
+                value={formState.levelOfConfidence}
+                disabled={isSubmitting}
+                onValueChange={(value: "high" | "low") =>
+                  setFormState((previousState) => ({
+                    ...previousState,
+                    levelOfConfidence: value,
+                  }))
+                }
+              >
+                <SelectTrigger
+                  aria-labelledby="character-knowledge-label"
+                  className={`${inputClassName} h-auto`}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">Known</SelectItem>
+                  <SelectItem value="low">Not known</SelectItem>
+                </SelectContent>
+              </Select>
+            </Box>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block text-sm font-medium text-foreground/90">
                 Type

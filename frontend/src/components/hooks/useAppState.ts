@@ -50,11 +50,15 @@ export const useAppState = () => {
   };
 
   const addKnownCharacter = (character: ChineseCharacter) => {
-    setKnownCharacters((prev) => upsertCharacterById(prev, character));
+    setKnownCharacters((prev) =>
+      upsertCharacterById(prev, { ...character, levelOfConfidence: "high" })
+    );
   };
 
   const addUnknownCharacter = (character: ChineseCharacter) => {
-    setUnknownCharacters((prev) => upsertCharacterById(prev, character));
+    setUnknownCharacters((prev) =>
+      upsertCharacterById(prev, { ...character, levelOfConfidence: "low" })
+    );
   };
 
   const { isReviewing, startReview, exitReview, recategorizeReviewedCharacter } =

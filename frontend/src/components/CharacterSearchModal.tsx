@@ -32,6 +32,20 @@ const formatLastSeenLabel = (lastSeenAt: Date | null) => {
   return dayjs(lastSeenAt).format("YYYY-MM-DD");
 };
 
+const getKnowledgeLabel = (
+  levelOfConfidence: ChineseCharacter["levelOfConfidence"]
+) => {
+  if (levelOfConfidence === "high") {
+    return "Known";
+  }
+
+  if (levelOfConfidence === "low") {
+    return "Not known";
+  }
+
+  return "Unspecified";
+};
+
 const getTypeBadgeClassName = (type: ChineseCharacter["type"]) => {
   const baseClassName =
     "inline-flex rounded-full border px-2.5 py-1 text-xs font-medium capitalize";
@@ -264,6 +278,7 @@ export const CharacterSearchModal = ({
             <th className="px-5 py-4 text-left">Translation</th>
             <th className="px-5 py-4 text-left">Type</th>
             <th className="px-5 py-4 text-left">Importance</th>
+            <th className="px-5 py-4 text-left">Knowledge</th>
             <th className="px-5 py-4 text-left">Seen</th>
             <th className="px-5 py-4 text-right">Action</th>
           </tr>
@@ -294,6 +309,9 @@ export const CharacterSearchModal = ({
                 <Body className={getImportanceBadgeClassName(character.importance)}>
                   {character.importance ?? "Unspecified"}
                 </Body>
+              </td>
+              <td className="px-5 py-4 align-middle text-slate-300">
+                {getKnowledgeLabel(character.levelOfConfidence)}
               </td>
               <td className="px-5 py-4 align-middle text-slate-300">
                 {formatLastSeenLabel(character.lastSeenAt)}

@@ -104,10 +104,14 @@ const generateCharacterDetails = async (
 };
 
 export const useSetCharacterUnknown = () => {
+  const queryClient = useQueryClient();
   const {
     mutateAsync: handleCharacterUnknown,
     isLoading: isCharacterUnknownLoading,
   } = useMutation(setCharacterUnknown, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["adminCharacters"]);
+    },
     onError: (error) => {
       console.error(error);
       toast.error("Set character unknown failed, please try again.");
@@ -117,10 +121,14 @@ export const useSetCharacterUnknown = () => {
 };
 
 export const useSetCharacterKnown = () => {
+  const queryClient = useQueryClient();
   const {
     mutateAsync: handleCharacterKnown,
     isLoading: isCharacterKnownLoading,
   } = useMutation(setCharacterKnown, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["adminCharacters"]);
+    },
     onError: (error) => {
       console.error(error);
       toast.error("Set character known failed, please try again.");
@@ -152,10 +160,14 @@ export const useCreateCharacter = () => {
 };
 
 export const useUpdateCharacter = () => {
+  const queryClient = useQueryClient();
   const {
     mutateAsync: handleUpdateCharacter,
     isLoading: isUpdateCharacterLoading,
   } = useMutation(updateCharacter, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["adminCharacters"]);
+    },
     onError: (error) => {
       console.error(error);
       toast.error(
