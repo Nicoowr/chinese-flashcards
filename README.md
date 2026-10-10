@@ -18,21 +18,6 @@ A flashcard application for learning Chinese characters, now backed by Supabase 
    - `SUPABASE_URL`
    - `SUPABASE_SERVICE_ROLE_KEY`
 
-## Notion data migration (one-time)
-
-If your data is still in Notion, run:
-
-```bash
-cd frontend
-pnpm migrate:notion-to-supabase
-```
-
-Required env vars for the migration script:
-- `NOTION_API_KEY`
-- `NOTION_VOCABULARY_DATASOURCE_ID` (or `NOTION_DATABASE_ID`)
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-
 ## API endpoints
 
 - `POST /api/fetch-chinese-character`
