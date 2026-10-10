@@ -32,7 +32,7 @@
     "tsx": "^4.23.12",
     "typescript": "^5",
     "typescript-eslint": "^8.67.0",
-    "js-yaml": "4.1.1"
+    "js-yaml": "4.3.2"
   },
   "packageManager": "pnpm@10.28.1"
 }
