@@ -1,3 +1,4 @@
 packages:
   - "frontend"
-minimumReleaseAge: 2880
+# Seven days, in minutes.
+minimumReleaseAge: 10080
