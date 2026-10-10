@@ -1,6 +1,7 @@
 packages:
   - "frontend"
-minimumReleaseAge: 2880
+# Seven days, in minutes.
+minimumReleaseAge: 10080
 overrides:
   "brace-expansion@>=1.0.0 <=1.1.13": "1.1.14"
   "flatted@<=3.4.1": "3.4.2"
