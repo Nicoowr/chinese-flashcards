@@ -1,10 +1,89 @@
+import { realpathSync } from "node:fs";
 import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
-import { load } from "js-yaml";
 
 const SEVEN_DAYS_IN_MINUTES = 7 * 24 * 60;
+
+// Read only pnpm's generated block mappings. Reject unfamiliar syntax rather than
+// risk silently skipping a package; no installed dependency may run before the gate.
+function readSections(source) {
+  const sections = new Map();
+  let section;
+  for (const line of source.split(/\r?\n/)) {
+    if (!line.trim() || line.trimStart().startsWith("#")) continue;
+    if (line.startsWith(" ") && section) {
+      section.lines.push(line);
+      continue;
+    }
+    const match = line.match(/^([A-Za-z][\w-]*):(?:\s+(.*))?$/);
+    if (!match || sections.has(match[1])) {
+      throw new Error(`Unsupported or duplicate YAML field: ${line}`);
+    }
+    section = { value: (match[2] ?? "").replace(/\s*#.*$/, ""), lines: [] };
+    sections.set(match[1], section);
+  }
+  return sections;
+}
+
+export function parseReleaseAgeFiles(workspaceSource, lockfileSource) {
+  const workspaceSections = readSections(workspaceSource);
+  const lockfileSections = readSections(lockfileSource);
+  const age = workspaceSections.get("minimumReleaseAge");
+  if (!age || age.lines.length || !/^\d+$/.test(age.value)) {
+    throw new Error(
+      "Expected a numeric minimumReleaseAge in pnpm-workspace.yaml.",
+    );
+  }
+  const version = lockfileSections.get("lockfileVersion");
+  if (
+    !version ||
+    version.lines.length ||
+    !/^(?:9\.0|'9\.0'|"9\.0")$/.test(version.value)
+  ) {
+    throw new Error("Expected a pnpm v9 lockfile.");
+  }
+  const packageSection = lockfileSections.get("packages");
+  if (!packageSection || packageSection.value) {
+    throw new Error("Expected a block packages section in pnpm-lock.yaml.");
+  }
+
+  const packages = Object.create(null);
+  let entry;
+  let fields;
+  for (const line of packageSection.lines) {
+    const key = line.match(
+      /^  (?:'([^']+)'|"([^"\\]+)"|([^'"\s][^:]*)):\s*(?:#.*)?$/,
+    );
+    if (key) {
+      const name = key[1] ?? key[2] ?? key[3];
+      if (Object.hasOwn(packages, name))
+        throw new Error(`Duplicate locked package: ${name}`);
+      entry = packages[name] = {};
+      fields = new Set();
+      continue;
+    }
+    if (!entry) throw new Error(`Unsupported package mapping: ${line}`);
+    const field = line.match(/^    ([A-Za-z][\w]*):(?:\s+(.*))?$/);
+    if (field) {
+      if (fields.has(field[1]))
+        throw new Error(`Duplicate package field: ${line}`);
+      fields.add(field[1]);
+      if (field[1] === "resolution") {
+        const integrity = field[2]?.match(/^\{integrity: ([\w+/=-]+)\}$/);
+        if (!integrity)
+          throw new Error(`Unsupported package resolution: ${line}`);
+        entry.resolution = { integrity: integrity[1] };
+      }
+    } else if (!/^ {6,}\S/.test(line)) {
+      throw new Error(`Unsupported package field: ${line}`);
+    }
+  }
+  return {
+    workspace: { minimumReleaseAge: Number(age.value) },
+    lockfile: { lockfileVersion: "9.0", packages },
+  };
+}
 
 async function fetchPublicationTimes(name) {
   for (let attempt = 0; ; attempt++) {
@@ -102,11 +181,12 @@ export async function checkReleaseAge({
 
 async function main() {
   const root = new URL("../", import.meta.url);
-  const [workspace, lockfile] = await Promise.all(
-    ["pnpm-workspace.yaml", "pnpm-lock.yaml"].map(async (file) =>
-      load(await readFile(new URL(file, root), "utf8")),
+  const sources = await Promise.all(
+    ["pnpm-workspace.yaml", "pnpm-lock.yaml"].map((file) =>
+      readFile(new URL(file, root), "utf8"),
     ),
   );
+  const { workspace, lockfile } = parseReleaseAgeFiles(...sources);
   const { packagesChecked, failures } = await checkReleaseAge({
     workspace,
     lockfile,
@@ -125,7 +205,7 @@ async function main() {
 
 if (
   process.argv[1] &&
-  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+  realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
   main().catch((error) => {
     console.error(error.message);

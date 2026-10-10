@@ -17,8 +17,9 @@ It performs the following checks on the frontend:
 4. **Dependency release age**: Checks every package in `pnpm-lock.yaml` against
    npm publication dates and rejects releases younger than seven days, including
    transitive and optional dependencies. Missing dates or registry failures also
-   fail the check. This job runs before linting and tests; its dependency install
-   disables lifecycle scripts. pnpm 10's frozen installs alone do not enforce
+   fail the check. The production check uses only Node.js built-ins and runs
+   before installing dependencies. The later install disables lifecycle scripts
+   and is followed by offline verifier tests. pnpm 10's frozen installs alone do not enforce
    `minimumReleaseAge` for versions already in the lockfile.
 
 The workspace sets `minimumReleaseAge: 10080` (seven days in minutes). The CI
@@ -29,6 +30,11 @@ package sources fail because their npm publication dates cannot be verified.
 Run the check from the repository root with `pnpm check:release-age` (requires
 access to the public npm registry), and its offline tests with
 `pnpm test:release-age`.
+
+Before installing dependencies, run `node scripts/check-release-age.mjs` directly.
+The dependency-free reader supports pnpm's generated v9 block mappings and inline
+integrity resolutions; unfamiliar YAML syntax fails the check. `js-yaml` is used
+only by offline tests to compare the reader with the full YAML parser.
 
 ## Scripts
 

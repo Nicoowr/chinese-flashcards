@@ -26,14 +26,14 @@ jobs:
           node-version: "24.x"
           cache: "pnpm"
 
+      - name: Check locked dependency release ages before installation
+        run: node scripts/check-release-age.mjs
+
       - name: Install dependencies without lifecycle scripts
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Test release age enforcement
         run: pnpm test:release-age
-
-      - name: Check locked dependency release ages
-        run: pnpm check:release-age
 
   lint:
     name: Lint & type-check
