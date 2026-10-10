@@ -7,6 +7,11 @@ type ReviewSnapshot = {
   previousShowIdeogram: boolean;
 };
 
+const confidenceByReviewList = {
+  known: "high",
+  unknown: "low",
+} as const;
+
 export const useReviewState = ({
   currentCharacter,
   showIdeogram,
@@ -51,21 +56,24 @@ export const useReviewState = ({
     targetList: "known" | "unknown"
   ) => {
     if (!currentCharacter || !reviewSnapshot) return currentCharacter;
-    const characterId = currentCharacter.id;
+    const character = {
+      ...currentCharacter,
+      levelOfConfidence: confidenceByReviewList[targetList],
+    };
+    const characterId = character.id;
     if (targetList === "known") {
-      setKnownCharacters((prev) => upsertCharacterById(prev, currentCharacter));
+      setKnownCharacters((prev) => upsertCharacterById(prev, character));
       setUnknownCharacters((prev) =>
         prev.filter((c) => c.id !== characterId)
       );
     } else {
       setUnknownCharacters((prev) =>
-        upsertCharacterById(prev, currentCharacter)
+        upsertCharacterById(prev, character)
       );
       setKnownCharacters((prev) =>
         prev.filter((c) => c.id !== characterId)
       );
     }
-    const character = currentCharacter;
     exitReview();
     return character;
   };

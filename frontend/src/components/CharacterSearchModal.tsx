@@ -32,6 +32,20 @@ const formatLastSeenLabel = (lastSeenAt: Date | null) => {
   return dayjs(lastSeenAt).format("YYYY-MM-DD");
 };
 
+const getKnowledgeLabel = (
+  levelOfConfidence: ChineseCharacter["levelOfConfidence"]
+) => {
+  if (levelOfConfidence === "high") {
+    return "Known";
+  }
+
+  if (levelOfConfidence === "low") {
+    return "Not known";
+  }
+
+  return "Unspecified";
+};
+
 const getTypeBadgeClassName = (type: ChineseCharacter["type"]) => {
   const baseClassName =
     "inline-flex rounded-full border px-2.5 py-1 text-xs font-medium capitalize";
@@ -110,13 +124,15 @@ export const CharacterSearchModal = ({
   isOpen,
   onClose,
   onEditCharacter,
+  onAddCharacter,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onEditCharacter: (character: ChineseCharacter) => void;
+  onAddCharacter: (character: string) => void;
 }) => {
   const [query, setQuery] = useState("");
-  const { data, isLoading, isFetching } = useQuery(
+  const { data, isLoading, isFetching, isError } = useQuery(
     ["adminCharacters"],
     fetchAdminCharacters,
     {
@@ -164,6 +180,15 @@ export const CharacterSearchModal = ({
   const filteredCount = filtered.length;
   const totalCount = data?.total ?? 0;
   const isInitialLoading = (isLoading || isFetching) && !data;
+  const trimmedQuery = query.trim();
+  const canAddCharacter =
+    Boolean(data) &&
+    !isFetching &&
+    !isError &&
+    trimmedQuery.length > 0 &&
+    !allCharacters.some(
+      (character) => character.character.trim() === trimmedQuery
+    );
   const resultsSummary = getResultsSummary({
     query,
     filteredCount,
@@ -178,6 +203,38 @@ export const CharacterSearchModal = ({
   const handleEdit = (character: ChineseCharacter) => {
     onEditCharacter(character);
     closeModal();
+  };
+
+  const handleAdd = () => {
+    onAddCharacter(trimmedQuery);
+    closeModal();
+  };
+
+  const renderAddCharacterAction = () => {
+    if (!canAddCharacter) {
+      return null;
+    }
+
+    return (
+      <HStack
+        className="flex-wrap rounded-2xl border border-cyan-400/20 bg-cyan-400/5 px-4 py-3"
+        alignItems="center"
+        justifyContent="space-between"
+        gap={12}
+      >
+        <Body className="text-sm text-slate-300">
+          Missing a character? Add it to your library.
+        </Body>
+        <Button
+          type="button"
+          variant="outline"
+          className="rounded-xl border-cyan-400/20 bg-cyan-400/10 text-cyan-100 hover:bg-cyan-400/20 hover:text-white"
+          onClick={handleAdd}
+        >
+          Add character
+        </Button>
+      </HStack>
+    );
   };
 
   const renderResults = () => {
@@ -221,6 +278,7 @@ export const CharacterSearchModal = ({
             <th className="px-5 py-4 text-left">Translation</th>
             <th className="px-5 py-4 text-left">Type</th>
             <th className="px-5 py-4 text-left">Importance</th>
+            <th className="px-5 py-4 text-left">Knowledge</th>
             <th className="px-5 py-4 text-left">Seen</th>
             <th className="px-5 py-4 text-right">Action</th>
           </tr>
@@ -251,6 +309,9 @@ export const CharacterSearchModal = ({
                 <Body className={getImportanceBadgeClassName(character.importance)}>
                   {character.importance ?? "Unspecified"}
                 </Body>
+              </td>
+              <td className="px-5 py-4 align-middle text-slate-300">
+                {getKnowledgeLabel(character.levelOfConfidence)}
               </td>
               <td className="px-5 py-4 align-middle text-slate-300">
                 {formatLastSeenLabel(character.lastSeenAt)}
@@ -284,10 +345,10 @@ export const CharacterSearchModal = ({
               <Body className="mb-3 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
                 Character Library
               </Body>
-              <DialogTitle>Find and edit any character</DialogTitle>
+              <DialogTitle>Find, add, and edit characters</DialogTitle>
               <DialogDescription className="mt-2">
                 Search by character, pinyin, translation, type, example, or importance and
-                jump directly into the editor.
+                jump directly into the editor, or add a missing character.
               </DialogDescription>
             </DialogHeader>
 
@@ -307,6 +368,7 @@ export const CharacterSearchModal = ({
 
           <VStack className="relative px-8 py-6" gap={18}>
             <label className="relative block">
+              <Body className="sr-only">Search characters</Body>
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 value={query}
@@ -315,6 +377,8 @@ export const CharacterSearchModal = ({
                 className="w-full rounded-2xl border border-white/10 bg-slate-950/70 py-3.5 pl-11 pr-4 text-sm text-slate-100 outline-hidden transition placeholder:text-slate-500 focus:border-cyan-400/70 focus:ring-2 focus:ring-cyan-400/20"
               />
             </label>
+
+            {renderAddCharacterAction()}
 
             <Box className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/55 shadow-inner shadow-black/20">
               <Box className="max-h-[56vh] overflow-auto">{renderResults()}</Box>

@@ -26,6 +26,7 @@ import { Body, Box, Button, HStack, VStack } from "../design-system/components";
 import { SessionCharacterLists } from "./session-character-lists";
 import { ChineseCharacter } from "./types";
 import { CharacterSearchModal } from "./CharacterSearchModal";
+import { updateCharacterInSessionList } from "./sessionState";
 
 type FlashcardsContainerProps = {
   onLogout?: () => void;
@@ -61,6 +62,7 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
   const [editorState, setEditorState] = useState<{
     mode: "create" | "edit";
     character: ChineseCharacter | null;
+    initialCharacter: string;
   } | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { handleCharacterUnknown } = useSetCharacterUnknown();
@@ -167,15 +169,10 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
     }
   };
 
-  const replaceCharacterInList = (
-    characters: ChineseCharacter[],
-    updatedCharacter: ChineseCharacter
-  ) =>
-    characters.map((character) =>
-      character.id === updatedCharacter.id ? updatedCharacter : character
-    );
-
   const applyCharacterUpdate = (updatedCharacter: ChineseCharacter) => {
+    const hasBeenReviewed = [...knownCharacters, ...unknownCharacters].some(
+      (character) => character.id === updatedCharacter.id
+    );
     setCurrentCharacter((previousCharacter) =>
       previousCharacter?.id === updatedCharacter.id
         ? updatedCharacter
@@ -187,10 +184,20 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
         : previousCharacter
     );
     setKnownCharacters((previousCharacters) =>
-      replaceCharacterInList(previousCharacters, updatedCharacter)
+      updateCharacterInSessionList({
+        characters: previousCharacters,
+        updatedCharacter,
+        hasBeenReviewed,
+        levelOfConfidence: "high",
+      })
     );
     setUnknownCharacters((previousCharacters) =>
-      replaceCharacterInList(previousCharacters, updatedCharacter)
+      updateCharacterInSessionList({
+        characters: previousCharacters,
+        updatedCharacter,
+        hasBeenReviewed,
+        levelOfConfidence: "low",
+      })
     );
   };
 
@@ -286,6 +293,7 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
             setEditorState({
               mode: "create",
               character: null,
+              initialCharacter: "",
             })
           }
           onEditCharacter={() =>
@@ -293,6 +301,7 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
               ? setEditorState({
                   mode: "edit",
                   character: currentCharacter,
+                  initialCharacter: "",
                 })
               : undefined
           }
@@ -307,6 +316,7 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
         isOpen={Boolean(editorState)}
         mode={editorState?.mode ?? "create"}
         character={editorState?.character ?? null}
+        initialCharacter={editorState?.initialCharacter ?? ""}
         isSubmitting={isEditorSubmitting}
         onClose={() => {
           if (!isEditorSubmitting) {
@@ -324,6 +334,14 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
           setEditorState({
             mode: "edit",
             character,
+            initialCharacter: "",
+          });
+        }}
+        onAddCharacter={(initialCharacter) => {
+          setEditorState({
+            mode: "create",
+            character: null,
+            initialCharacter,
           });
         }}
       />
