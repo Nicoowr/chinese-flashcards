@@ -11,7 +11,9 @@
     "build": "pnpm --filter frontend run build",
     "start": "pnpm --filter frontend run start",
     "sync:ai-rules": "tsx scripts/sync-ai-rules.ts",
-    "check:ai-rules": "tsx scripts/sync-ai-rules.ts --check"
+    "check:ai-rules": "tsx scripts/sync-ai-rules.ts --check",
+    "check:release-age": "node scripts/check-release-age.mjs",
+    "test:release-age": "node --test scripts/check-release-age.test.mjs"
   },
   "keywords": [],
   "author": "",
@@ -29,7 +31,8 @@
     "prettier": "^3.9.6",
     "tsx": "^4.23.12",
     "typescript": "^5",
-    "typescript-eslint": "^8.67.0"
+    "typescript-eslint": "^8.67.0",
+    "js-yaml": "4.1.1"
   },
   "packageManager": "pnpm@10.28.1"
 }
