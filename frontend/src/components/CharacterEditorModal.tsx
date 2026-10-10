@@ -57,6 +57,7 @@ export const CharacterEditorModal = ({
   isOpen,
   mode,
   character,
+  initialCharacter,
   isSubmitting,
   onClose,
   onSubmit,
@@ -66,6 +67,7 @@ export const CharacterEditorModal = ({
   isOpen: boolean;
   mode: "create" | "edit";
   character: ChineseCharacter | null;
+  initialCharacter: string;
   isSubmitting: boolean;
   onClose: () => void;
   onSubmit: (payload: CharacterEditorPayload) => Promise<void>;
@@ -95,7 +97,7 @@ export const CharacterEditorModal = ({
       return;
     }
     setFormState({
-      character: character?.character ?? "",
+      character: character?.character ?? initialCharacter,
       translation: character?.translation ?? "",
       example: character?.example ?? "",
       addedAt:
@@ -111,7 +113,7 @@ export const CharacterEditorModal = ({
       numberOfCorrectAnswers: String(character?.numberOfCorrectAnswers ?? 0),
       levelOfConfidence: character?.levelOfConfidence ?? "low",
     });
-  }, [character, isOpen, mode]);
+  }, [character, initialCharacter, isOpen, mode]);
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

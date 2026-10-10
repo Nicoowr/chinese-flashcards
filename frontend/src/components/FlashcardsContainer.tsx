@@ -61,6 +61,7 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
   const [editorState, setEditorState] = useState<{
     mode: "create" | "edit";
     character: ChineseCharacter | null;
+    initialCharacter: string;
   } | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { handleCharacterUnknown } = useSetCharacterUnknown();
@@ -286,6 +287,7 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
             setEditorState({
               mode: "create",
               character: null,
+              initialCharacter: "",
             })
           }
           onEditCharacter={() =>
@@ -293,6 +295,7 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
               ? setEditorState({
                   mode: "edit",
                   character: currentCharacter,
+                  initialCharacter: "",
                 })
               : undefined
           }
@@ -307,6 +310,7 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
         isOpen={Boolean(editorState)}
         mode={editorState?.mode ?? "create"}
         character={editorState?.character ?? null}
+        initialCharacter={editorState?.initialCharacter ?? ""}
         isSubmitting={isEditorSubmitting}
         onClose={() => {
           if (!isEditorSubmitting) {
@@ -324,6 +328,14 @@ export function FlashcardsContainer({ onLogout, userEmail }: FlashcardsContainer
           setEditorState({
             mode: "edit",
             character,
+            initialCharacter: "",
+          });
+        }}
+        onAddCharacter={(initialCharacter) => {
+          setEditorState({
+            mode: "create",
+            character: null,
+            initialCharacter,
           });
         }}
       />
