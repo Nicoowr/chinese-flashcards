@@ -1,7 +1,7 @@
 "use client";
 
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CharacterImportance, CharacterType, ChineseCharacter } from "./types";
 import { Body, Box, Button, Card, HStack, Loader, VStack } from "../design-system/components";
 import {
@@ -60,17 +60,7 @@ const today = () => dayjs().format("YYYY-MM-DD");
 const inputClassName =
   "mt-2 w-full rounded-xl border border-border bg-background/70 px-4 py-3 text-base text-foreground outline-hidden transition placeholder:text-muted-foreground focus:border-ring/60 focus:ring-2 focus:ring-ring/20";
 
-export const CharacterEditorModal = ({
-  isOpen,
-  mode,
-  character,
-  initialCharacter,
-  isSubmitting,
-  onClose,
-  onSubmit,
-  onGenerateCharacterDetails,
-  isGeneratingCharacterDetails,
-}: {
+type CharacterEditorProps = {
   isOpen: boolean;
   mode: "create" | "edit";
   character: ChineseCharacter | null;
@@ -84,43 +74,40 @@ export const CharacterEditorModal = ({
     type: CharacterType;
   }>;
   isGeneratingCharacterDetails: boolean;
-}) => {
-  const [formState, setFormState] = useState({
-    character: "",
-    translation: "",
-    example: "",
-    addedAt: "",
-    type: "" as CharacterTypeField,
-    importance: "" as CharacterImportance | "",
-    lastSeenAt: "",
-    numberOfCorrectAnswers: "0",
-    levelOfConfidence: "low" as "high" | "low",
-  });
+};
+
+const CharacterEditorForm = ({
+  isOpen,
+  mode,
+  character,
+  initialCharacter,
+  isSubmitting,
+  onClose,
+  onSubmit,
+  onGenerateCharacterDetails,
+  isGeneratingCharacterDetails,
+}: CharacterEditorProps) => {
+  const [formState, setFormState] = useState(() => ({
+    character: character?.character ?? initialCharacter,
+    translation: character?.translation ?? "",
+    example: character?.example ?? "",
+    addedAt:
+      mode === "create"
+        ? today()
+        : toDateInput(character?.addedAt ?? null) || today(),
+    type: (character?.type ?? "") as CharacterTypeField,
+    importance: (
+      mode === "create" ? "high" : character?.importance ?? "high"
+    ) as CharacterImportance | "",
+    lastSeenAt:
+      mode === "create"
+        ? today()
+        : toDateInput(character?.lastSeenAt ?? null) || today(),
+    numberOfCorrectAnswers: String(character?.numberOfCorrectAnswers ?? 0),
+    levelOfConfidence: character?.levelOfConfidence ?? "low",
+  }));
   const [isGeneratingLocal, setIsGeneratingLocal] = useState(false);
   const isGenerating = isGeneratingLocal || isGeneratingCharacterDetails;
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-    setFormState({
-      character: character?.character ?? initialCharacter,
-      translation: character?.translation ?? "",
-      example: character?.example ?? "",
-      addedAt:
-        mode === "create"
-          ? today()
-          : toDateInput(character?.addedAt ?? null) || today(),
-      type: (character?.type ?? "") as CharacterTypeField,
-      importance: mode === "create" ? "high" : character?.importance ?? "high",
-      lastSeenAt:
-        mode === "create"
-          ? today()
-          : toDateInput(character?.lastSeenAt ?? null) || today(),
-      numberOfCorrectAnswers: String(character?.numberOfCorrectAnswers ?? 0),
-      levelOfConfidence: character?.levelOfConfidence ?? "low",
-    });
-  }, [character, initialCharacter, isOpen, mode]);
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -374,5 +361,18 @@ export const CharacterEditorModal = ({
         </Card>
       </DialogContent>
     </Dialog>
+  );
+};
+
+export const CharacterEditorModal = (props: CharacterEditorProps) => {
+  if (!props.isOpen) {
+    return null;
+  }
+
+  return (
+    <CharacterEditorForm
+      key={`${props.mode}:${props.character?.id ?? "new"}:${props.initialCharacter}`}
+      {...props}
+    />
   );
 };
