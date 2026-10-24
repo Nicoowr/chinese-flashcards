@@ -16,6 +16,7 @@ export type CharacterConfidence = (typeof CHARACTER_CONFIDENCE)[number];
 export type ChineseCharacter = {
   id: string;
   character: string;
+  pinyin?: string | null;
   translation: string | null;
   example: string | null;
   addedAt: Date | null;
@@ -29,6 +30,7 @@ export type ChineseCharacter = {
 export type AdminCharacter = {
   id: string;
   character: string;
+  pinyin?: string | null;
   translation: string | null;
   example: string | null;
   addedAt: string | null;
@@ -46,6 +48,7 @@ export type CharacterFilters = {
 
 export type CreateCharacterInput = {
   character: string;
+  pinyin?: string | null;
   translation?: string | null;
   example?: string | null;
   addedAt?: string | null;
